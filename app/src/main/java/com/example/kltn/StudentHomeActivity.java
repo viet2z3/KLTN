@@ -14,15 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class StudentHomeActivity extends AppCompatActivity {
 
-    private TextView tvWelcomeMessage;
-    private RecyclerView rvLearningCards;
-    private Button btnProfile;
-    private LearningCardAdapter adapter;
+    private ImageView ivAvatar;
+    private TextView tvUserName;
+    private ImageView imgFlashCard, imgBaitap, imgTest, imgVideo, imgBadge, imgProgress;
     private String userEmail;
 
     @Override
@@ -36,157 +37,81 @@ public class StudentHomeActivity extends AppCompatActivity {
         // Initialize views
         initViews();
 
-        // Setup learning cards
-        setupLearningCards();
-
-        // Setup click listeners
-        setupClickListeners();
+        // Setup BottomNavigationView
+        setupBottomNavigation();
     }
 
     private void initViews() {
-        tvWelcomeMessage = findViewById(R.id.tv_welcome_message);
-        rvLearningCards = findViewById(R.id.rv_learning_cards);
-        btnProfile = findViewById(R.id.btn_profile);
-        
-        rvLearningCards.setLayoutManager(new GridLayoutManager(this, 2));
+        ivAvatar = findViewById(R.id.r8xjyhkhtcc); // Avatar
+        tvUserName = findViewById(R.id.rlff09bfus9); // Hello, <name>
+        imgFlashCard = findViewById(R.id.imgFlashCard);
+        imgBaitap = findViewById(R.id.imgBaitap);
+        imgTest = findViewById(R.id.imgTest);
+        imgVideo = findViewById(R.id.imgVideo);
+        imgBadge = findViewById(R.id.imgBadge);
+        imgProgress = findViewById(R.id.imgThongke);
+        // Nếu muốn set tên động:
+        // tvUserName.setText("Hello, " + <userName>);
+        setupImageClicks();
     }
 
-    private void setupLearningCards() {
-        List<LearningCard> cards = createLearningCards();
-        adapter = new LearningCardAdapter(cards, this::onCardClicked);
-        rvLearningCards.setAdapter(adapter);
+    private void setupBottomNavigation() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            Intent intent = null;
+            if (id == R.id.nav_home) {
+                // Ở lại màn hình này, có thể reload nếu muốn
+                return true;
+            } else if (id == R.id.nav_learn) {
+                intent = new Intent(this, FlashcardLearningActivity.class);
+            } else if (id == R.id.nav_badge) {
+                intent = new Intent(this, BadgesScreenActivity.class);
+            } else if (id == R.id.nav_setting) {
+                intent = new Intent(this, SettingsActivity.class);
+            }
+            if (intent != null) {
+                intent.putExtra("user_email", userEmail);
+                startActivity(intent);
+                // Optional: không giữ lại activity hiện tại
+                // finish();
+            }
+            return true;
+        });
+        // Đặt mục Home được chọn mặc định
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 
-    private List<LearningCard> createLearningCards() {
-        List<LearningCard> cards = new ArrayList<>();
-        
-        cards.add(new LearningCard("Flashcards", "Learn with interactive flashcards", R.drawable.ic_launcher_foreground, "flashcards"));
-        cards.add(new LearningCard("Exercises", "Practice with fun exercises", R.drawable.ic_launcher_foreground, "exercises"));
-        cards.add(new LearningCard("My Progress", "Track your learning progress", R.drawable.ic_launcher_foreground, "progress"));
-        cards.add(new LearningCard("Video Lessons", "Watch educational videos", R.drawable.ic_launcher_foreground, "videos"));
-        cards.add(new LearningCard("Take Test", "Test your knowledge", R.drawable.ic_launcher_foreground, "test"));
-        cards.add(new LearningCard("My Badges", "View your achievements", R.drawable.ic_launcher_foreground, "badges"));
-        cards.add(new LearningCard("Learning Streak", "Check your daily streak", R.drawable.ic_launcher_foreground, "streak"));
-        cards.add(new LearningCard("Settings", "App settings and preferences", R.drawable.ic_launcher_foreground, "settings"));
-        
-        return cards;
-    }
-
-    private void setupClickListeners() {
-        btnProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(StudentHomeActivity.this, ProfileUpdateActivity.class);
+    private void setupImageClicks() {
+        imgFlashCard.setOnClickListener(v -> {
+            Intent intent = new Intent(this, FlashcardLearningActivity.class);
             intent.putExtra("user_email", userEmail);
             startActivity(intent);
         });
-    }
-
-    private void onCardClicked(LearningCard card) {
-        Intent intent = null;
-        
-        switch (card.getType()) {
-            case "flashcards":
-                intent = new Intent(this, FlashcardLearningActivity.class);
-                break;
-            case "exercises":
-                intent = new Intent(this, ExerciseScreenActivity.class);
-                break;
-            case "progress":
-                intent = new Intent(this, ProgressTrackingActivity.class);
-                break;
-            case "videos":
-                intent = new Intent(this, VideoLecturesActivity.class);
-                break;
-            case "test":
-                intent = new Intent(this, TestScreenActivity.class);
-                break;
-            case "badges":
-                intent = new Intent(this, BadgesScreenActivity.class);
-                break;
-            case "streak":
-                intent = new Intent(this, LearningStreakActivity.class);
-                break;
-            case "settings":
-                intent = new Intent(this, SettingsActivity.class);
-                break;
-        }
-        
-        if (intent != null) {
+        imgBaitap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ExerciseScreenActivity.class);
             intent.putExtra("user_email", userEmail);
             startActivity(intent);
-        }
-    }
-
-    // Learning Card Data Class
-    public static class LearningCard {
-        private String title;
-        private String description;
-        private int iconResId;
-        private String type;
-
-        public LearningCard(String title, String description, int iconResId, String type) {
-            this.title = title;
-            this.description = description;
-            this.iconResId = iconResId;
-            this.type = type;
-        }
-
-        public String getTitle() { return title; }
-        public String getDescription() { return description; }
-        public int getIconResId() { return iconResId; }
-        public String getType() { return type; }
-    }
-
-    // RecyclerView Adapter
-    private static class LearningCardAdapter extends RecyclerView.Adapter<LearningCardAdapter.ViewHolder> {
-        private List<LearningCard> cards;
-        private OnCardClickListener listener;
-
-        public interface OnCardClickListener {
-            void onCardClick(LearningCard card);
-        }
-
-        public LearningCardAdapter(List<LearningCard> cards, OnCardClickListener listener) {
-            this.cards = cards;
-            this.listener = listener;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_learning_card, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            LearningCard card = cards.get(position);
-            holder.tvCardTitle.setText(card.getTitle());
-            holder.tvCardDescription.setText(card.getDescription());
-            holder.ivCardIcon.setImageResource(card.getIconResId());
-            
-            holder.itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onCardClick(card);
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return cards.size();
-        }
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvCardTitle, tvCardDescription;
-            ImageView ivCardIcon;
-
-            ViewHolder(View itemView) {
-                super(itemView);
-                tvCardTitle = itemView.findViewById(R.id.tv_card_title);
-                tvCardDescription = itemView.findViewById(R.id.tv_card_description);
-                ivCardIcon = itemView.findViewById(R.id.iv_card_icon);
-            }
-        }
+        });
+        imgTest.setOnClickListener(v -> {
+            Intent intent = new Intent(this, TestScreenActivity.class);
+            intent.putExtra("user_email", userEmail);
+            startActivity(intent);
+        });
+        imgVideo.setOnClickListener(v -> {
+            Intent intent = new Intent(this, VideoLecturesActivity.class);
+            intent.putExtra("user_email", userEmail);
+            startActivity(intent);
+        });
+        imgBadge.setOnClickListener(v -> {
+            Intent intent = new Intent(this, BadgesScreenActivity.class);
+            intent.putExtra("user_email", userEmail);
+            startActivity(intent);
+        });
+        imgProgress.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProgressTrackingActivity.class);
+            intent.putExtra("user_email", userEmail);
+            startActivity(intent);
+        });
     }
 } 
