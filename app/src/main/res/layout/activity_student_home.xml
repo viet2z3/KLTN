@@ -1,74 +1,250 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_secondary"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".StudentHomeActivity">
-
-    <!-- App Bar -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary_blue"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/student_home_title"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/btn_profile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_secondary"
-            android:text="Profile"
-            android:textColor="@color/primary_blue"
-            android:textSize="14sp" />
-
-    </LinearLayout>
-
-    <!-- Main Content -->
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <ScrollView
+        android:id="@+id/rgy11hhnylr"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
+        android:layout_weight="1"
+        android:background="#F7F9FC">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- Welcome Section -->
-            <TextView
-                android:id="@+id/tv_welcome_message"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/rtsg0m6vnfvs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="@string/student_home_subtitle"
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp" />
-
-            <!-- Learning Cards Grid -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_learning_cards"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                tools:listitem="@layout/item_learning_card" />
-
+                android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/rqgiycq2khcg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:background="#F7F9FC"
+                    android:padding="16dp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/r8xjyhkhtcc"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/anhdaidien"
+                        android:scaleType="fitXY"
+                        />
+                    <TextView
+                        android:id="@+id/rlff09bfus9"
+                        android:textColor="#5C708A"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="15dp"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Hello, Alex"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/rgthauk1lgo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="16dp"
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:id="@+id/rzgvxh6mcb7r"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:orientation="horizontal">
+                        <LinearLayout
+                            android:id="@+id/rx5f2q919ou8"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="12dp"
+                            android:layout_marginEnd="12dp"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:id="@+id/imgFlashCard"
+                                android:layout_width="match_parent"
+                                android:layout_height="173dp"
+                                android:layout_marginBottom="12dp"
+                                android:src="@drawable/flashcard"
+                                android:scaleType="fitXY"
+                                />
+                            <TextView
+                                android:id="@+id/rrlo7yfpeti"
+                                android:textColor="#5C708A"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="1dp"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Learn Flashcards"
+                                />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/rrdmrxq0izl"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="12dp"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:id="@+id/imgBaitap"
+                                android:layout_width="match_parent"
+                                android:layout_height="173dp"
+                                android:layout_marginBottom="12dp"
+                                android:src="@drawable/baitap"
+                                android:scaleType="fitXY"
+                                />
+                            <TextView
+                                android:id="@+id/rjy5imajsqf"
+                                android:textColor="#5C708A"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="1dp"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Do Exercises"
+                                />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/r8lsjs8g69io"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:orientation="horizontal">
+                        <LinearLayout
+                            android:id="@+id/ra090ky3zd8"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="12dp"
+                            android:layout_marginEnd="12dp"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:id="@+id/imgTest"
+                                android:layout_width="match_parent"
+                                android:layout_height="173dp"
+                                android:layout_marginBottom="12dp"
+                                android:src="@drawable/kiemtra"
+                                android:scaleType="fitXY"
+                                />
+                            <TextView
+                                android:id="@+id/rb3yq065sw98"
+                                android:textColor="#5C708A"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="1dp"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Take a Test"
+                                />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/r8g9tfjqs3vu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="12dp"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:id="@+id/imgVideo"
+                                android:layout_width="match_parent"
+                                android:layout_height="173dp"
+                                android:layout_marginBottom="12dp"
+                                android:src="@drawable/video"
+                                android:scaleType="fitXY"
+                                />
+                            <TextView
+                                android:id="@+id/r2lm79hq4q7j"
+                                android:textColor="#5C708A"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="1dp"
+                                android:layout_height="wrap_content"
+                                android:layout_width="match_parent"
+                                android:layout_weight="1"
+                                android:text="Watch Video Lessons"
+                                />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/r11e67z8a3geh"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:orientation="horizontal">
+                        <LinearLayout
+                            android:id="@+id/rzeka1ve855"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="12dp"
+                            android:layout_marginEnd="12dp"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:id="@+id/imgBadge"
+                                android:layout_width="match_parent"
+                                android:layout_height="173dp"
+                                android:layout_marginBottom="12dp"
+                                android:src="@drawable/huyhieu"
+                                android:scaleType="fitXY"
+                                />
+                            <TextView
+                                android:id="@+id/tvBadge"
+                                android:textColor="#5C708A"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="1dp"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="View Badges"
+                                />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/r09eleaj16zl2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="12dp"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:id="@+id/imgThongke"
+                                android:layout_width="match_parent"
+                                android:layout_height="173dp"
+                                android:layout_marginBottom="12dp"
+                                android:src="@drawable/thongke"
+                                android:scaleType="fitXY"
+                                />
+                            <TextView
+                                android:id="@+id/rz1ct2rvj7c8"
+                                android:textColor="#5C708A"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="1dp"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Track Progress"
+                                />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-
     </ScrollView>
-
-</LinearLayout> 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/bottom_nav_menu" />
+</LinearLayout>

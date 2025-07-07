@@ -10,15 +10,19 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private EditText etEmail;
-    private Button btnResetPassword, btnBack;
+    // private Button  btnBack; // Không có Button back, dùng ImageView
     private ProgressBar progressBar;
-    private TextView tvSuccessMessage;
+    private TextView btnResetPassword; // btn_reset_password là TextView
+    // private TextView tvSuccessMessage; // Không có tv_success_message trong layout
+    private ImageView btnBack; // ImageView back
+    private View sendLinkLayout; // LinearLayout chứa nút gửi link
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,16 +34,22 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        etEmail = findViewById(R.id.et_email);
-        btnResetPassword = findViewById(R.id.btn_reset_password);
-        btnBack = findViewById(R.id.btn_back);
+        etEmail = findViewById(R.id.r6b37qz1lfx3); // EditText Email
+        btnResetPassword = findViewById(R.id.btn_reset_password); // TextView Send Link
+        btnBack = findViewById(R.id.back); // ImageView Back (trong FrameLayout mới)
         progressBar = findViewById(R.id.progress_bar);
-        tvSuccessMessage = findViewById(R.id.tv_success_message);
+        sendLinkLayout = findViewById(R.id.r8zwox2wry25); // LinearLayout chứa nút gửi link
+        // Không cần thay đổi logic, chỉ đảm bảo đúng id và layout mới
     }
 
     private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> finish());
-        btnResetPassword.setOnClickListener(v -> attemptSendResetLink());
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
+        sendLinkLayout.setOnClickListener(v -> attemptSendResetLink());
     }
 
     private void attemptSendResetLink() {
@@ -77,14 +87,20 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        btnResetPassword.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+        sendLinkLayout.setEnabled(!show);
         btnResetPassword.setEnabled(!show);
         etEmail.setEnabled(!show);
+        sendLinkLayout.setAlpha(show ? 0.5f : 1f);
     }
 
     private void showSuccessMessage() {
-        tvSuccessMessage.setVisibility(View.VISIBLE);
-        btnResetPassword.setVisibility(View.GONE);
-        
+        btnResetPassword.setText(R.string.forgot_password_success);
+        sendLinkLayout.setEnabled(false);
+        btnResetPassword.setEnabled(false);
+        etEmail.setEnabled(false);
+        btnResetPassword.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
         Toast.makeText(this, getString(R.string.forgot_password_success), Toast.LENGTH_LONG).show();
     }
 } 

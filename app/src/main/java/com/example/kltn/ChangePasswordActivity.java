@@ -7,6 +7,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,8 +19,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText etOldPassword;
     private EditText etNewPassword;
     private EditText etConfirmPassword;
-    private Button btnChangePassword;
-    private Button btnBack;
+    private LinearLayout btnChangePassword;
+    private ImageView btnBack;
     
     // Current password (in real app, this would be stored securely)
     private String currentPassword = "password123";
@@ -33,15 +35,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
     }
     
     private void initializeViews() {
-        tvTitle = findViewById(R.id.tv_change_password_title);
-        etOldPassword = findViewById(R.id.et_current_password);
-        etNewPassword = findViewById(R.id.et_new_password);
-        etConfirmPassword = findViewById(R.id.et_confirm_password);
-        btnChangePassword = findViewById(R.id.btn_change_password);
-        btnBack = findViewById(R.id.btn_back);
-        
-        // Set title
-        tvTitle.setText(R.string.change_password_title);
+        tvTitle = findViewById(R.id.tvTitle);
+        etOldPassword = findViewById(R.id.etOldPassword);
+        etNewPassword = findViewById(R.id.etNewPassword);
+        etConfirmPassword = findViewById(R.id.etConfirmPassword);
+        btnChangePassword = findViewById(R.id.btnChangePassword);
+        btnBack = findViewById(R.id.btnBack);
     }
     
     private void setupEventHandlers() {
@@ -112,7 +111,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private void performPasswordChange(String newPassword) {
         // Simulate API call delay
         btnChangePassword.setEnabled(false);
-        btnChangePassword.setText(R.string.loading);
+        // Nếu muốn đổi text trên nút, cần truy cập TextView con
+        TextView btnText = btnChangePassword.findViewById(R.id.btnChangePassword);
+        if (btnText != null) btnText.setText(R.string.loading);
         
         // Simulate network delay
         new android.os.Handler().postDelayed(() -> {
@@ -129,7 +130,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             
             // Reset button
             btnChangePassword.setEnabled(true);
-            btnChangePassword.setText(R.string.btn_change_password);
+            if (btnText != null) btnText.setText(R.string.btn_change_password);
             
             // Close activity
             finish();
