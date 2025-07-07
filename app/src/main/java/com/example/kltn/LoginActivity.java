@@ -99,9 +99,9 @@ public class LoginActivity extends AppCompatActivity {
                     navigateToHome(email);
                 } else {
                     showLoading(false);
-                    Toast.makeText(LoginActivity.this, 
-                        "Login failed. Please check your credentials.", 
-                        Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this,
+                            "Login failed. Please check your credentials.",
+                            Toast.LENGTH_LONG).show();
                 }
             }
         }, 1500);
@@ -121,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToHome(String email) {
         Intent intent;
-        
+
         if (email.contains("student")) {
             intent = new Intent(LoginActivity.this, StudentHomeActivity.class);
         } else if (email.contains("teacher")) {
@@ -132,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
             // Default to student home
             intent = new Intent(LoginActivity.this, StudentHomeActivity.class);
         }
-        
+
         intent.putExtra("user_email", email);
         startActivity(intent);
         finish(); // Close login activity
@@ -145,4 +145,4 @@ public class LoginActivity extends AppCompatActivity {
         etEmail.setEnabled(!show);
         etPassword.setEnabled(!show);
     }
-} 
+}

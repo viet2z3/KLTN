@@ -5,11 +5,11 @@
     <color name="primary_dark_blue">#1976D2</color>
     <color name="primary_light_blue">#BBDEFB</color>
     <color name="accent_blue">#03A9F4</color>
-    
+
     <!-- Accent Colors -->
     <color name="accent_orange">#FF9800</color>
     <color name="warning_yellow">#FFC107</color>
-    
+
     <!-- Grayscale Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
@@ -18,18 +18,18 @@
     <color name="dark_gray">#757575</color>
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
-    
+
     <!-- Status Colors -->
     <color name="success_green">#4CAF50</color>
     <color name="warning_orange">#FF9800</color>
     <color name="error_red">#F44336</color>
-    
+
     <!-- Background Colors -->
     <color name="background_primary">#FFFFFF</color>
     <color name="background_secondary">#F5F5F5</color>
     <color name="background_light">#FAFAFA</color>
     <color name="card_background">#FFFFFF</color>
-    
+
     <!-- Legacy colors for compatibility -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
