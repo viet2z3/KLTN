@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp">
+
+    <RadioButton
+        android:id="@+id/rbAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Đáp án mẫu"
+        android:background="@drawable/radiobutton_choice_selector"
+        android:button="@null"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_gravity="center_vertical" />
+
+</androidx.cardview.widget.CardView> 

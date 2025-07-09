@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -15,148 +14,128 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.KLTN">
-
-        <!-- Login Activity (Main Entry Point) -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.VideoDetail"
+            android:exported="false" />
+        <activity
+            android:name=".activities.TestDetail"
+            android:exported="false" />
+        <activity
+            android:name=".activities.TestChoice"
+            android:exported="false" /> <!-- Login Activity (Main Entry Point) -->
+        <activity
+            android:name=".activities.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Student Activities -->
+        </activity> <!-- Student Activities -->
         <activity
-            android:name=".StudentHomeActivity"
+            android:name=".activities.StudentHomeActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".FlashcardLearningActivity"
+            android:name=".activities.FlashcardLearningActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ExerciseScreenActivity"
+            android:name=".activities.ExerciseScreenActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".TestScreenActivity"
+            android:name=".activities.TestScreenActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".VideoLecturesActivity"
+            android:name=".activities.VideoLecturesActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".BadgesScreenActivity"
+            android:name=".activities.BadgesScreenActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".LearningStreakActivity"
+            android:name=".activities.LearningStreakActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ProgressTrackingActivity"
+            android:name=".activities.ProgressTrackingActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".JoinLeaveClassActivity"
+            android:name=".activities.JoinLeaveClassActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ChangePasswordActivity"
+            android:name=".activities.ChangePasswordActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".activities.ForgotPasswordActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ProfileUpdateActivity"
+            android:name=".activities.ProfileUpdateActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- Teacher Activities -->
+        <activity
+            android:name=".activities.TeacherDashboardActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
-        <!-- Teacher Activities -->
         <activity
-            android:name=".TeacherDashboardActivity"
+            android:name=".activities.ManageStudentsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ManageStudentsActivity"
+            android:name=".activities.AssignLessonActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".AssignLessonActivity"
+            android:name=".activities.ViewStudentProgressActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ViewStudentProgressActivity"
+            android:name=".activities.EvaluateStudentActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- Admin Activities -->
+        <activity
+            android:name=".activities.AdminDashboardActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".EvaluateStudentActivity"
+            android:name=".activities.ManageUsersActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
-        <!-- Admin Activities -->
         <activity
-            android:name=".AdminDashboardActivity"
+            android:name=".activities.ManageRolesActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ManageUsersActivity"
+            android:name=".activities.ManageClassesActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ManageRolesActivity"
+            android:name=".activities.ManageContentActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ManageClassesActivity"
+            android:name=".activities.SystemReportsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- Common Activities -->
+        <activity
+            android:name=".activities.SettingsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
-            android:name=".ManageContentActivity"
+            android:name=".activities.ExerciseQuestionListActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
-
+            android:screenOrientation="portrait" /> <!-- Legacy MainActivity (kept for compatibility) -->
         <activity
-            android:name=".SystemReportsActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Common Activities -->
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Legacy MainActivity (kept for compatibility) -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="false">
-        </activity>
-
+            android:name=".activities.MainActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
