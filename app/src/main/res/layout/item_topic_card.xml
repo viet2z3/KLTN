@@ -1,72 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/card_background"
-    app:strokeColor="@color/primary_light_blue"
-    app:strokeWidth="1dp">
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@drawable/card_background"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="12dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/imgTopicIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/animals"
+        android:contentDescription="Topic Icon" />
+
+    <TextView
+        android:id="@+id/tvTopicName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
-
-        <!-- Topic Icon -->
-        <ImageView
-            android:id="@+id/iv_topic_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/ic_launcher_foreground"
-            android:contentDescription="Topic Icon"
-            android:padding="8dp"
-            android:backgroundTint="@color/primary_blue" />
-
-        <!-- Topic Info -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_topic_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Topic Name"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_topic_count"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="10 cards"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-
-        </LinearLayout>
-
-        <!-- Arrow Icon -->
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/ic_launcher_foreground"
-            android:contentDescription="Arrow"
-            android:backgroundTint="@color/primary_blue" />
-
-    </LinearLayout>
-
-</com.google.android.material.card.MaterialCardView> 
+        android:text="Animal"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        android:textColor="#0F1619" />
+    <TextView
+        android:id="@+id/tvTopicCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10 questions"
+        android:textSize="14sp"
+        android:textColor="#597C8C"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="2dp" />
+</LinearLayout> 
