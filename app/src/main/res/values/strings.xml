@@ -296,4 +296,9 @@
     <string name="loading">Loading...</string>
     <string name="error_generic">Something went wrong. Please try again.</string>
     <string name="success">Success!</string>
+    <string-array name="gender_array">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
 </resources>
