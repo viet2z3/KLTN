@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KLTN">
         <activity
+            android:name=".activities.ProfileDetail"
+            android:exported="false" />
+        <activity
             android:name=".activities.VideoDetail"
             android:exported="false" />
         <activity

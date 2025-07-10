@@ -54,6 +54,11 @@ public class StudentHomeActivity extends AppCompatActivity {
         // Nếu muốn set tên động:
         // tvUserName.setText("Hello, " + <userName>);
         setupImageClicks();
+        ivAvatar.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileDetail.class);
+            intent.putExtra("user_email", userEmail);
+            startActivity(intent);
+        });
     }
 
     private void setupBottomNavigation() {
