@@ -1,177 +1,157 @@
 package com.example.kltn.activities;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RatingBar;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.kltn.R;
+import com.example.kltn.models.Student;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
+
 public class EvaluateStudentActivity extends AppCompatActivity {
-    
-    // UI Components
-    private TextView tvTitle;
-    private TextView tvStudentName;
-    private RatingBar ratingBarParticipation;
-    private RatingBar ratingBarUnderstanding;
-    private RatingBar ratingBarProgress;
-    private EditText etComments;
-    private Button btnSaveEvaluation;
-    private Button btnBack;
-    
-    // Data
-    private String studentName = "John Doe";
-    private float participationRating = 3.0f;
-    private float understandingRating = 3.0f;
-    private float progressRating = 3.0f;
-    
+
+    private TextView tvEvaluationDate;
+    private Spinner spinnerSubject;
+    private String selectedSubject;
+    private Spinner spinnerStudentName;
+    private TextView tvStudentClass;
+    private List<Student> studentList;
+    private Student selectedStudent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_evaluate_student);
+
+        // Initialize views
+        tvEvaluationDate = findViewById(R.id.tvEvaluationDate);
+        spinnerSubject = findViewById(R.id.spinnerSubject);
+        spinnerStudentName = findViewById(R.id.spinnerStudentName);
+        tvStudentClass = findViewById(R.id.tvStudentClass);
+
+        // Set current date
+        setCurrentDate();
         
-        // Get student data from intent
-        studentName = getIntent().getStringExtra("student_name");
-        if (studentName == null) {
-            studentName = "John Doe";
-        }
-        
-        initializeViews();
-        setupEventHandlers();
-        displayStudentData();
+        // Setup spinner
+        setupSpinner();
+        loadSampleStudents();
+        setupStudentSpinner();
     }
-    
-    private void initializeViews() {
-        tvTitle = findViewById(R.id.tvTitle);
-        tvStudentName = findViewById(R.id.tvStudentName);
-        ratingBarParticipation = findViewById(R.id.ratingParticipation);
-        ratingBarUnderstanding = findViewById(R.id.ratingUnderstanding);
-        ratingBarProgress = findViewById(R.id.ratingProgress);
-        etComments = findViewById(R.id.etComments);
-        btnSaveEvaluation = findViewById(R.id.btnSaveEvaluation);
-        btnBack = findViewById(R.id.btnBack);
-        
-        // Set title
-        tvTitle.setText(R.string.evaluate_student_title);
+
+    private void setCurrentDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+        String currentDate = sdf.format(new Date());
+        tvEvaluationDate.setText(currentDate);
     }
-    
-    private void setupEventHandlers() {
-        // Rating bar listeners
-        ratingBarParticipation.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
-            participationRating = rating;
+
+    private void setupSpinner() {
+        // Create array of subjects
+        String[] subjects = {
+            "Select Subject",
+            "Mathematics",
+            "English",
+            "Science",
+            "History",
+            "Geography",
+            "Literature",
+            "Physics",
+            "Chemistry",
+            "Biology",
+            "Computer Science",
+            "Art",
+            "Music",
+            "Physical Education"
+        };
+
+        // Create adapter
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            this,
+            R.layout.spinner_item,
+            subjects
+        );
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+
+        // Set adapter to spinner
+        spinnerSubject.setAdapter(adapter);
+
+        // Set default selection
+        spinnerSubject.setSelection(0);
+
+        // Set item selected listener
+        spinnerSubject.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedSubject = subjects[position];
+                if (position > 0) { // Not "Select Subject"
+                    Toast.makeText(EvaluateStudentActivity.this, 
+                        "Selected: " + selectedSubject, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedSubject = "";
+            }
         });
-        
-        ratingBarUnderstanding.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
-            understandingRating = rating;
+    }
+
+    private void loadSampleStudents() {
+        studentList = new ArrayList<>();
+        studentList.add(new Student("Lucas Bennett", 7, "lucas.b@example.com", "", "Grade 2", 85, 75, true));
+        studentList.add(new Student("Olivia Carter", 8, "olivia.c@example.com", "", "Grade 3", 92, 80, true));
+        studentList.add(new Student("Noah Davis", 6, "noah.d@example.com", "", "Grade 1", 78, 65, true));
+        studentList.add(new Student("Isabella Evans", 9, "isabella.e@example.com", "", "Grade 4", 88, 85, true));
+        studentList.add(new Student("Ethan Foster", 7, "ethan.f@example.com", "", "Grade 2", 90, 78, true));
+        studentList.add(new Student("Sophia Green", 8, "sophia.g@example.com", "", "Grade 3", 87, 82, true));
+    }
+
+    private void setupStudentSpinner() {
+        List<String> studentNames = new ArrayList<>();
+        studentNames.add("Select Students");
+        for (Student s : studentList) {
+            studentNames.add(s.getName());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            this,
+            R.layout.spinner_item,
+            studentNames
+        );
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spinnerStudentName.setAdapter(adapter);
+        spinnerStudentName.setSelection(0);
+        spinnerStudentName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    selectedStudent = null;
+                    tvStudentClass.setText("");
+                } else {
+                    selectedStudent = studentList.get(position - 1);
+                    tvStudentClass.setText(selectedStudent.getClassName());
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedStudent = null;
+                tvStudentClass.setText("");
+            }
         });
-        
-        ratingBarProgress.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
-            progressRating = rating;
-        });
-        
-        btnSaveEvaluation.setOnClickListener(v -> saveEvaluation());
-        btnBack.setOnClickListener(v -> finish());
     }
-    
-    private void displayStudentData() {
-        tvStudentName.setText("Student: " + studentName);
-        
-        // Set initial values
-        ratingBarParticipation.setRating(participationRating);
-        ratingBarUnderstanding.setRating(understandingRating);
-        ratingBarProgress.setRating(progressRating);
-    }
-    
-    private boolean validateScore() {
-        // Score validation is removed as per the new layout
-        return true;
-    }
-    
-    private void saveEvaluation() {
-        // Clear previous errors
-        etComments.setError(null);
-        
-        // Validate comments
-        String comments = etComments.getText().toString().trim();
-        if (TextUtils.isEmpty(comments)) {
-            etComments.setError("Comments are required");
-            etComments.requestFocus();
-            return;
-        }
-        
-        if (comments.length() < 10) {
-            etComments.setError("Comments must be at least 10 characters");
-            etComments.requestFocus();
-            return;
-        }
-        
-        // Validate ratings
-        if (participationRating == 0 || understandingRating == 0 || progressRating == 0) {
-            Toast.makeText(this, "Please rate all criteria", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        // Save evaluation
-        performEvaluationSave();
-    }
-    
-    private void performEvaluationSave() {
-        // Simulate API call delay
-        btnSaveEvaluation.setEnabled(false);
-        btnSaveEvaluation.setText(R.string.loading);
-        
-        // Simulate network delay
-        new android.os.Handler().postDelayed(() -> {
-            // Show success message
-            Toast.makeText(this, R.string.evaluation_saved, Toast.LENGTH_LONG).show();
-            
-            // Clear form
-            etComments.setText("");
-            ratingBarParticipation.setRating(3.0f);
-            ratingBarUnderstanding.setRating(3.0f);
-            ratingBarProgress.setRating(3.0f);
-            participationRating = 3.0f;
-            understandingRating = 3.0f;
-            progressRating = 3.0f;
-            
-            // Reset button
-            btnSaveEvaluation.setEnabled(true);
-            btnSaveEvaluation.setText(R.string.btn_save_evaluation);
-            
-            // Close activity
-            finish();
-        }, 1500);
-    }
-    
-    @Override
-    public void onBackPressed() {
-        // Check if any field has been modified
-        String comments = etComments.getText().toString().trim();
-        
-        if (!TextUtils.isEmpty(comments) || 
-            participationRating != 3.0f || 
-            understandingRating != 3.0f || 
-            progressRating != 3.0f) {
-            
-            new android.app.AlertDialog.Builder(this)
-                .setTitle("Discard Changes")
-                .setMessage("Are you sure you want to discard your evaluation?")
-                .setPositiveButton("Yes", (dialog, which) -> super.onBackPressed())
-                .setNegativeButton("No", null)
-                .show();
-        } else {
-            super.onBackPressed();
-        }
+
+    // Method to get selected subject
+    public String getSelectedSubject() {
+        return selectedSubject;
     }
 } 

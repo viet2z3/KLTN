@@ -3,26 +3,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background_primary">
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:padding="16dp"
-        android:background="@color/primary_blue">
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="28dp"
+            android:layout_height="25dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_back" />
 
         <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/evaluate_student_title"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:gravity="center" />
+            android:layout_marginEnd="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Evaluate Student"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
@@ -36,61 +47,96 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="16dp">
 
-            <!-- Student Information -->
-            <androidx.cardview.widget.CardView
+            <!-- Student Information Card -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/card_background">
+                android:background="@drawable/card_background"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_marginEnd="16dp"
+                    android:layout_weight="2"
+                    android:orientation="vertical">
 
-                    <TextView
+                    <Spinner
+                        android:id="@+id/spinnerStudentName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Student Information"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:id="@+id/tvStudentName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Student Name: John Doe"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/spinner_bg"
+                        android:padding="8dp" />
 
                     <TextView
                         android:id="@+id/tvStudentClass"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Class: English 101"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp" />
+                        android:text="Class 3A"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
-            </androidx.cardview.widget.CardView>
+                <ImageView
+                    android:id="@+id/ivStudentAvatar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/rounded_circle_bg"
+                    android:minHeight="80dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/user" />
 
-            <!-- Evaluation Criteria -->
+            </LinearLayout>
+
+            <!-- Date Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/card_background"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Evaluation Date"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvEvaluationDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_background"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="Today"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+            <!-- Subject Selection Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/card_background">
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -101,27 +147,53 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Evaluation Criteria"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"
+                        android:text="Subject"
                         android:textColor="@color/text_primary"
-                        android:layout_marginBottom="16dp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                    <!-- Participation -->
+                    <Spinner
+                        android:id="@+id/spinnerSubject"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/spinner_bg"
+                        android:padding="16dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Rating Section Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <!-- Participation Rating -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginBottom="20dp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
                             android:text="Participation"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="8dp" />
+                            android:textStyle="bold" />
 
                         <RatingBar
                             android:id="@+id/ratingParticipation"
@@ -129,25 +201,27 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:numStars="5"
+                            android:progressTint="@color/star_color"
+                            android:rating="4.0"
                             android:stepSize="0.5" />
 
                     </LinearLayout>
 
-                    <!-- Understanding -->
+                    <!-- Understanding Rating -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginBottom="20dp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
                             android:text="Understanding"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="8dp" />
+                            android:textStyle="bold" />
 
                         <RatingBar
                             android:id="@+id/ratingUnderstanding"
@@ -155,25 +229,27 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:numStars="5"
+                            android:progressTint="@color/star_color"
+                            android:rating="4.5"
                             android:stepSize="0.5" />
 
                     </LinearLayout>
 
-                    <!-- Progress -->
+                    <!-- Progress Rating -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginBottom="20dp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
                             android:text="Progress"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="8dp" />
+                            android:textStyle="bold" />
 
                         <RatingBar
                             android:id="@+id/ratingProgress"
@@ -181,7 +257,75 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:numStars="5"
+                            android:progressTint="@color/star_color"
+                            android:rating="4.0"
                             android:stepSize="0.5" />
+
+                    </LinearLayout>
+
+                    <!-- Overall Rating Display -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_background"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:text="Overall Rating"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvOverallRating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="4.2"
+                            android:textColor="@color/text_primary"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_star_filled"
+                                app:tint="@color/star_color" />
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_star_filled"
+                                app:tint="@color/star_color" />
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_star_filled"
+                                app:tint="@color/star_color" />
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_star_filled"
+                                app:tint="@color/star_color" />
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_star_empty"
+                                app:tint="@color/star_color" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -189,14 +333,14 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Comments -->
+            <!-- Comments Section Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/card_background">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -207,22 +351,22 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
                         android:text="Comments"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
                         android:textColor="@color/text_primary"
-                        android:layout_marginBottom="12dp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/etComments"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Enter your comments..."
-                        android:inputType="textMultiLine"
-                        android:minLines="3"
-                        android:maxLines="5"
-                        android:padding="16dp"
                         android:background="@drawable/edit_text_background"
+                        android:hint="Enter your feedback"
+                        android:inputType="textMultiLine"
+                        android:maxLines="6"
+                        android:minLines="4"
+                        android:padding="16dp"
                         android:textColor="@color/text_primary"
                         android:textColorHint="@color/text_secondary" />
 
@@ -230,31 +374,70 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
-            <Button
-                android:id="@+id/btnSaveEvaluation"
+            <!-- Score Section Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Save Evaluation"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="16dp"
-                android:background="@drawable/button_primary"
-                android:textColor="@color/white"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
 
-            <Button
-                android:id="@+id/btnBack"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_back"
-                android:textSize="16sp"
-                android:padding="16dp"
-                android:background="@drawable/button_secondary"
-                android:textColor="@color/primary_blue" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Score"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etScore"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/edit_text_background"
+                        android:hint="Enter score (0-100)"
+                        android:inputType="number"
+                        android:padding="16dp"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
     </ScrollView>
+
+    <!-- Bottom Action Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingBottom="20dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveEvaluation"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Save Evaluation"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#FF6B6B"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"
+            app:rippleColor="#FF8E8E" />
+
+    </LinearLayout>
 
 </LinearLayout> 

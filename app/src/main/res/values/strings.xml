@@ -168,6 +168,8 @@
     <string name="lesson_due_date">Due Date</string>
     <string name="btn_assign">Assign</string>
     <string name="lesson_assigned_success">Lesson assigned successfully!</string>
+    <string name="assign_lesson_video_url">Video URL</string>
+    <string name="assign_lesson_video_url_hint">Enter video link (URL)</string>
 
     <!-- View Student Progress -->
     <string name="view_student_progress_title">View Student Progress</string>
@@ -301,4 +303,33 @@
         <item>Female</item>
         <item>Other</item>
     </string-array>
+    <string name="settings">Settings</string>
+    <string name="manage_students">Manage Students</string>
+    <string name="manage_students_sub">Manage your students</string>
+    <string name="assign_lessons">Assign Lessons</string>
+    <string name="assign_lessons_sub">Assign lessons to your students</string>
+    <string name="view_progress">View Progress</string>
+    <string name="view_progress_sub">View your students progress</string>
+    <string name="evaluate_students">Evaluate Students</string>
+    <string name="evaluate_students_sub">Evaluate your students performance</string>
+    <string name="profile">Profile</string>
+    <string name="home">Home</string>
+    <string name="classes">Classes</string>
+    <string name="select_class">Select Class</string>
+    <string name="hello">Hello, Ms. Sophia</string>
+    <string name="manage_info">You are managing 3 classes and 60 students</string>
+    <string-array name="class_options">
+        <item>Select Class</item>
+        <item>Class 1</item>
+        <item>Class 2</item>
+        <item>Class 3</item>
+    </string-array>
+    <string name="assign_lesson_lesson_type">Lesson Type</string>
+    <string name="assign_lesson_content">Content</string>
+    <string name="assign_lesson_assign_to">Assign To</string>
+    <string name="assign_lesson_due_date">Due Date</string>
+    <string name="assign_lesson_select_content">Select Content</string>
+    <string name="assign_lesson_select_students">Select Students/Classes</string>
+    <string name="assign_lesson_select_date">Select Date</string>
+    <string name="assign_lesson_assign_lesson">Assign Lesson</string>
 </resources>
