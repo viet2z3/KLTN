@@ -1,209 +1,246 @@
 package com.example.kltn.activities;
 
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kltn.R;
-import com.example.kltn.models.User;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.kltn.adapters.UserAdapter;
-
+import com.example.kltn.models.User;
 import java.util.ArrayList;
 import java.util.List;
+import android.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Toast;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Button;
+import android.widget.ImageView;
 
-public class ManageUsersActivity extends AppCompatActivity {
+
+public class ManageUsersActivity extends AppCompatActivity implements UserAdapter.OnUserActionListener {
     
-    // UI Components
-    private TextView tvTitle, tvTotalUsers, tvActiveUsers;
-    private EditText etSearch;
-    private Button btnSearch, btnFilterAll, btnFilterStudents, btnFilterTeachers, btnFilterAdmins;
-    private RecyclerView rvUsers;
-    
-    // Data
-    private List<User> allUsers;
-    private List<User> filteredUsers;
-    private UserAdapter userAdapter;
-    private String currentFilter = "all";
-    
+    private List<User> userList;
+    private UserAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_users);
-        
-        initializeViews();
-        setupUserData();
-        setupRecyclerView();
-        setupEventHandlers();
-        updateStatistics();
-    }
-    
-    private void initializeViews() {
-        tvTitle = findViewById(R.id.tvTitle);
-        etSearch = findViewById(R.id.etSearch);
-        btnSearch = findViewById(R.id.btnSearch);
-        btnFilterAll = findViewById(R.id.btnFilterAll);
-        btnFilterStudents = findViewById(R.id.btnFilterStudents);
-        btnFilterTeachers = findViewById(R.id.btnFilterTeachers);
-        btnFilterAdmins = findViewById(R.id.btnFilterAdmins);
-        tvTotalUsers = findViewById(R.id.tvTotalUsers);
-        tvActiveUsers = findViewById(R.id.tvActiveUsers);
-        rvUsers = findViewById(R.id.rvUsers);
-    }
-    
-    private void setupUserData() {
-        allUsers = new ArrayList<>();
-        allUsers.add(new User("Alice Johnson", "alice.johnson@example.com", "+1 234-567-8900", "Student", "Active", "Today at 2:30 PM"));
-        allUsers.add(new User("Bob Smith", "bob.smith@example.com", "+1 234-567-8901", "Student", "Active", "Yesterday at 4:15 PM"));
-        allUsers.add(new User("Charlie Brown", "charlie.brown@example.com", "+1 234-567-8902", "Student", "Inactive", "3 days ago"));
-        allUsers.add(new User("Diana Prince", "diana.prince@example.com", "+1 234-567-8903", "Teacher", "Active", "Today at 9:00 AM"));
-        allUsers.add(new User("Eve Wilson", "eve.wilson@example.com", "+1 234-567-8904", "Teacher", "Active", "Yesterday at 1:45 PM"));
-        allUsers.add(new User("Frank Miller", "frank.miller@example.com", "+1 234-567-8905", "Administrator", "Active", "Today at 8:30 AM"));
-        
-        filteredUsers = new ArrayList<>(allUsers);
-    }
-    
-    private void setupRecyclerView() {
-        userAdapter = new UserAdapter(filteredUsers, this::onUserAction);
+
+        RecyclerView rvUsers = findViewById(R.id.rv_users);
         rvUsers.setLayoutManager(new LinearLayoutManager(this));
-        rvUsers.setAdapter(userAdapter);
+
+        // Fix cứng dữ liệu user mẫu
+        userList = new ArrayList<>();
+        userList.add(new User("Ms. Emily Carter", "emily.carter@example.com", "(555) 123-4567", "Teacher", "Active", ""));
+        userList.add(new User("Ethan Harper", "ethan.harper@example.com", "(555) 987-6543", "Student", "Active", ""));
+        userList.add(new User("Olivia Bennett", "olivia.bennett@example.com", "(555) 246-8013", "Student", "Active", ""));
+        userList.add(new User("Mr. David Clark", "david.clark@example.com", "(555) 369-1215", "Teacher", "Active", ""));
+        userList.add(new User("Sophia Turner", "sophia.turner@example.com", "(555) 159-7531", "Student", "Active", ""));
+        userList.add(new User("Noah Foster", "noah.foster@example.com", "(555) 753-9512", "Student", "Active", ""));
+
+        adapter = new UserAdapter(userList, this);
+        rvUsers.setAdapter(adapter);
+
+        // Setup nút thêm user
+        findViewById(R.id.btn_add_user).setOnClickListener(v -> showAddUserDialog());
     }
-    
-    private void setupEventHandlers() {
-        btnSearch.setOnClickListener(v -> performSearch());
-        btnFilterAll.setOnClickListener(v -> setFilter("all"));
-        btnFilterStudents.setOnClickListener(v -> setFilter("students"));
-        btnFilterTeachers.setOnClickListener(v -> setFilter("teachers"));
-        btnFilterAdmins.setOnClickListener(v -> setFilter("admins"));
-    }
-    
-    private void performSearch() {
-        String searchTerm = etSearch.getText().toString().trim();
-        applyFilters(searchTerm);
-    }
-    
-    private void setFilter(String filter) {
-        currentFilter = filter;
+
+    private void showAddUserDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_user, null);
         
-        // Update button states
-        btnFilterAll.setBackground(getDrawable(R.drawable.button_secondary));
-        btnFilterStudents.setBackground(getDrawable(R.drawable.button_secondary));
-        btnFilterTeachers.setBackground(getDrawable(R.drawable.button_secondary));
-        btnFilterAdmins.setBackground(getDrawable(R.drawable.button_secondary));
+        // Setup spinner cho role
+        Spinner spinnerRole = dialogView.findViewById(R.id.spinner_role);
+        String[] roles = {"Student", "Teacher", "Admin"};
+        ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
+        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerRole.setAdapter(roleAdapter);
         
-        switch (filter) {
-            case "all":
-                btnFilterAll.setBackground(getDrawable(R.drawable.button_primary));
-                break;
-            case "students":
-                btnFilterStudents.setBackground(getDrawable(R.drawable.button_primary));
-                break;
-            case "teachers":
-                btnFilterTeachers.setBackground(getDrawable(R.drawable.button_primary));
-                break;
-            case "admins":
-                btnFilterAdmins.setBackground(getDrawable(R.drawable.button_primary));
-                break;
-        }
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
         
-        applyFilters(etSearch.getText().toString().trim());
-    }
-    
-    private void applyFilters(String searchTerm) {
-        filteredUsers.clear();
+        // Xử lý nút Cancel
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
         
-        for (User user : allUsers) {
-            boolean matchesSearch = TextUtils.isEmpty(searchTerm) || 
-                user.getName().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                user.getEmail().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                user.getRole().toLowerCase().contains(searchTerm.toLowerCase());
+        // Xử lý nút Add User
+        Button btnAdd = dialogView.findViewById(R.id.btn_add);
+        btnAdd.setOnClickListener(v -> {
+            EditText etName = dialogView.findViewById(R.id.et_user_name);
+            EditText etEmail = dialogView.findViewById(R.id.et_user_email);
+            EditText etPhone = dialogView.findViewById(R.id.et_user_phone);
+            EditText etPassword = dialogView.findViewById(R.id.et_user_password);
             
-            boolean matchesFilter = true;
-            switch (currentFilter) {
-                case "students":
-                    matchesFilter = user.getRole().equalsIgnoreCase("Student");
-                    break;
-                case "teachers":
-                    matchesFilter = user.getRole().equalsIgnoreCase("Teacher");
-                    break;
-                case "admins":
-                    matchesFilter = user.getRole().equalsIgnoreCase("Administrator");
-                    break;
+            String name = etName.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            String role = spinnerRole.getSelectedItem().toString();
+            
+            // Validation
+            if (name.isEmpty()) {
+                etName.setError("Name is required");
+                return;
+            }
+            if (email.isEmpty()) {
+                etEmail.setError("Email is required");
+                return;
+            }
+            if (phone.isEmpty()) {
+                etPhone.setError("Phone is required");
+                return;
+            }
+            if (password.isEmpty()) {
+                etPassword.setError("Password is required");
+                return;
             }
             
-            if (matchesSearch && matchesFilter) {
-                filteredUsers.add(user);
+            // Thêm user mới với password
+            User newUser = new User(name, email, phone, role, "Active", "", "", password);
+            userList.add(newUser);
+            adapter.notifyItemInserted(userList.size() - 1);
+            
+            Toast.makeText(this, "User added successfully", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+        
+        dialog.show();
+    }
+
+    @Override
+    public void onUserAction(User user, String action) {
+        if ("edit".equals(action)) {
+            showEditDialog(user);
+        }
+    }
+
+    private void showEditDialog(User user) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_edit_user, null);
+        
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        
+        // Xử lý nút "Sửa thông tin"
+        View btnEditUser = dialogView.findViewById(R.id.btn_edit_user);
+        btnEditUser.setOnClickListener(v -> {
+            dialog.dismiss();
+            showEditUserDialog(user);
+        });
+        
+        // Xử lý nút "Xóa người dùng"
+        View btnDeleteUser = dialogView.findViewById(R.id.btn_delete_user);
+        btnDeleteUser.setOnClickListener(v -> {
+            dialog.dismiss();
+            showDeleteConfirmation(user);
+        });
+        
+        dialog.show();
+    }
+    
+    private void showEditUserDialog(User user) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_edit_user_info, null);
+        
+        // Pre-fill thông tin hiện tại
+        EditText etName = dialogView.findViewById(R.id.et_edit_user_name);
+        EditText etEmail = dialogView.findViewById(R.id.et_edit_user_email);
+        EditText etPhone = dialogView.findViewById(R.id.et_edit_user_phone);
+        EditText etPassword = dialogView.findViewById(R.id.et_edit_user_password);
+        ImageView ivAvatar = dialogView.findViewById(R.id.iv_user_avatar);
+        
+        etName.setText(user.getName());
+        etEmail.setText(user.getEmail());
+        etPhone.setText(user.getPhone());
+        etPassword.setText(user.getPassword()); // Pre-fill mật khẩu hiện tại
+        
+        // Hiển thị avatar hiện tại (nếu có)
+        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+            // TODO: Load avatar từ URL hoặc resource
+            // ivAvatar.setImageURI(Uri.parse(user.getAvatar()));
+        }
+        
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        
+        // Xử lý nút Change Photo
+        Button btnChangeAvatar = dialogView.findViewById(R.id.btn_change_avatar);
+        btnChangeAvatar.setOnClickListener(v -> {
+            // TODO: Mở gallery hoặc camera để chọn ảnh
+            Toast.makeText(this, "Photo selection feature coming soon", Toast.LENGTH_SHORT).show();
+        });
+        
+        // Xử lý nút Cancel
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel_edit);
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        // Xử lý nút Save Changes
+        Button btnSave = dialogView.findViewById(R.id.btn_save_edit);
+        btnSave.setOnClickListener(v -> {
+            String newName = etName.getText().toString().trim();
+            String newEmail = etEmail.getText().toString().trim();
+            String newPhone = etPhone.getText().toString().trim();
+            String newPassword = etPassword.getText().toString().trim();
+            
+            // Validation
+            if (newName.isEmpty()) {
+                etName.setError("Name is required");
+                return;
             }
-        }
-        
-        userAdapter.notifyDataSetChanged();
-    }
-    
-    private void updateStatistics() {
-        int totalUsers = allUsers.size();
-        int activeUsers = 0;
-        
-        for (User user : allUsers) {
-            if (user.getStatus().equalsIgnoreCase("Active")) {
-                activeUsers++;
+            if (newEmail.isEmpty()) {
+                etEmail.setError("Email is required");
+                return;
             }
-        }
+            if (newPhone.isEmpty()) {
+                etPhone.setError("Phone is required");
+                return;
+            }
+            if (newPassword.isEmpty()) {
+                etPassword.setError("Password is required");
+                return;
+            }
+            
+            // Cập nhật thông tin user
+            user.setName(newName);
+            user.setEmail(newEmail);
+            user.setPhone(newPhone);
+            user.setPassword(newPassword);
+            
+            // Cập nhật RecyclerView
+            int position = userList.indexOf(user);
+            if (position != -1) {
+                adapter.notifyItemChanged(position);
+            }
+            
+            Toast.makeText(this, "User information updated successfully", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
         
-        tvTotalUsers.setText(String.valueOf(totalUsers));
-        tvActiveUsers.setText(String.valueOf(activeUsers));
+        dialog.show();
     }
     
-    private void onUserAction(User user, String action) {
-        switch (action) {
-            case "edit":
-                editUser(user);
-                break;
-            case "reset_password":
-                resetUserPassword(user);
-                break;
-            case "delete":
-                deleteUser(user);
-                break;
-        }
-    }
-    
-    private void editUser(User user) {
-        Toast.makeText(this, "Edit user: " + user.getName(), Toast.LENGTH_SHORT).show();
-    }
-    
-    private void resetUserPassword(User user) {
+    private void showDeleteConfirmation(User user) {
         new AlertDialog.Builder(this)
-            .setTitle("Reset Password")
-            .setMessage("Are you sure you want to reset password for " + user.getName() + "?")
-            .setPositiveButton("Reset", (dialog, which) -> {
-                Toast.makeText(this, "Password reset email sent to " + user.getEmail(), Toast.LENGTH_LONG).show();
+            .setTitle("Xác nhận xóa")
+            .setMessage("Bạn có chắc chắn muốn xóa người dùng " + user.getName() + "?")
+            .setPositiveButton("Xóa", (dialog, which) -> {
+                Toast.makeText(this, "Đã xóa: " + user.getName(), Toast.LENGTH_SHORT).show();
+                // TODO: Xử lý xóa user khỏi danh sách
             })
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("Hủy", null)
             .show();
     }
     
-    private void deleteUser(User user) {
-        new AlertDialog.Builder(this)
-            .setTitle("Delete User")
-            .setMessage("Are you sure you want to delete " + user.getName() + "?")
-            .setPositiveButton("Delete", (dialog, which) -> {
-                allUsers.remove(user);
-                applyFilters(etSearch.getText().toString().trim());
-                updateStatistics();
-                Toast.makeText(this, "User deleted", Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
-    }
+
 } 

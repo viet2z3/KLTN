@@ -1,89 +1,78 @@
 package com.example.kltn.activities;
 
-import android.content.Intent;
+
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.kltn.R;
+import android.content.Intent;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.widget.LinearLayout;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    private TextView tvWelcomeMessage, tvSystemHealth, tvTotalUsers, tvTotalClasses;
-    private Button btnManageUsers, btnManageRoles, btnManageClasses, btnManageContent, btnSystemReports;
-    
-    private String userEmail;
+    private LinearLayout actionManageUsers, actionManageClasses, actionManageContent, actionManageReports, actionSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
-        // Get user email from intent
-        userEmail = getIntent().getStringExtra("user_email");
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav_admin);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                // Stay on this activity
+                return true;
+            } else if (id == R.id.nav_users) {
+                Intent intent = new Intent(this, ManageUsersActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (id == R.id.nav_classes) {
+                Intent intent = new Intent(this, ManageClassesActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (id == R.id.nav_content) {
+                Intent intent = new Intent(this, ManageContentActivity.class);
+                startActivity(intent);
+                return true;
+            }
+            return false;
+        });
+        bottomNav.setSelectedItemId(R.id.nav_home);
 
-        initViews();
-        setupData();
-        setupClickListeners();
+        mapViews();
+        setupQuickActionClicks();
     }
 
-    private void initViews() {
-        tvWelcomeMessage = findViewById(R.id.tv_welcome_message);
-        tvSystemHealth = findViewById(R.id.tv_system_status);
-        tvTotalUsers = findViewById(R.id.tv_total_users);
-        tvTotalClasses = findViewById(R.id.tv_total_classes);
-        
-        btnManageUsers = findViewById(R.id.btn_manage_users);
-        btnManageRoles = findViewById(R.id.btn_manage_roles);
-        btnManageClasses = findViewById(R.id.btn_manage_classes);
-        btnManageContent = findViewById(R.id.btn_manage_content);
-        btnSystemReports = findViewById(R.id.btn_system_reports);
+    private void mapViews() {
+        actionManageUsers = findViewById(R.id.action_manage_users);
+        actionManageClasses = findViewById(R.id.action_manage_classes);
+
+        actionManageContent = findViewById(R.id.action_manage_content);
+        actionManageReports = findViewById(R.id.action_manage_reports);
+        actionSettings = findViewById(R.id.action_settings);
     }
 
-    private void setupData() {
-        // Set welcome message
-        tvWelcomeMessage.setText(getString(R.string.admin_welcome));
-        
-        // Set system health
-        tvSystemHealth.setText("Good");
-        
-        // Set statistics
-        tvTotalUsers.setText("156");
-        tvTotalClasses.setText("24");
-    }
-
-    private void setupClickListeners() {
-        // Management buttons
-        btnManageUsers.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, ManageUsersActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
+    private void setupQuickActionClicks() {
+        actionManageUsers.setOnClickListener(v -> {
+            startActivity(new Intent(this, ManageUsersActivity.class));
         });
-
-        btnManageRoles.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, ManageRolesActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
+        actionManageClasses.setOnClickListener(v -> {
+            startActivity(new Intent(this, ManageClassesActivity.class));
         });
-
-        btnManageClasses.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, ManageClassesActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
+        actionManageContent.setOnClickListener(v -> {
+            startActivity(new Intent(this, ManageContentActivity.class));
         });
-
-        btnManageContent.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, ManageContentActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
+        actionManageReports.setOnClickListener(v -> {
+            startActivity(new Intent(this, SystemReportsActivity.class));
         });
-
-        btnSystemReports.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, SystemReportsActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
+        actionSettings.setOnClickListener(v -> {
+            startActivity(new Intent(this, SettingsActivity.class));
         });
     }
+
+
 } 

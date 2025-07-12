@@ -3,7 +3,7 @@ package com.example.kltn.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,38 +44,26 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvUserName, tvUserRole, tvUserStatus, tvUserEmail, tvUserPhone, tvLastLogin;
-        Button btnEdit, btnResetPassword, btnDelete;
+        TextView tvUserName, tvUserRole, tvUserEmail, tvUserPhone;
+        ImageButton btnEdit;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvUserName = itemView.findViewById(R.id.tvUserName);
             tvUserRole = itemView.findViewById(R.id.tvUserRole);
-            tvUserStatus = itemView.findViewById(R.id.tvUserStatus);
             tvUserEmail = itemView.findViewById(R.id.tvUserEmail);
             tvUserPhone = itemView.findViewById(R.id.tvUserPhone);
-            tvLastLogin = itemView.findViewById(R.id.tvLastLogin);
             btnEdit = itemView.findViewById(R.id.btnEdit);
-            btnResetPassword = itemView.findViewById(R.id.btnResetPassword);
-            btnDelete = itemView.findViewById(R.id.btnDelete);
         }
 
         void bind(User user) {
             tvUserName.setText(user.getName());
             tvUserRole.setText(user.getRole());
-            tvUserStatus.setText(user.getStatus());
             tvUserEmail.setText(user.getEmail());
             tvUserPhone.setText(user.getPhone());
-            tvLastLogin.setText(user.getLastLogin());
 
             btnEdit.setOnClickListener(v -> {
                 if (listener != null) listener.onUserAction(user, "edit");
-            });
-            btnResetPassword.setOnClickListener(v -> {
-                if (listener != null) listener.onUserAction(user, "reset_password");
-            });
-            btnDelete.setOnClickListener(v -> {
-                if (listener != null) listener.onUserAction(user, "delete");
             });
         }
     }
