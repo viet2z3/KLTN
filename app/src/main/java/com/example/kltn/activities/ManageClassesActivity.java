@@ -1,193 +1,334 @@
 package com.example.kltn.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kltn.R;
+import com.example.kltn.adapters.ClassSimpleAdapter;
 import com.example.kltn.models.ClassInfo;
-import com.example.kltn.adapters.ClassAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class ManageClassesActivity extends AppCompatActivity {
-    
-    // UI Components
-    private TextView tvTitle, tvTotalClasses, tvActiveClasses;
-    private EditText etSearch;
-    private Button btnSearch, btnFilterAll, btnFilterActive, btnFilterInactive;
+public class ManageClassesActivity extends AppCompatActivity implements ClassSimpleAdapter.OnClassClickListener {
+
     private RecyclerView rvClasses;
+    private EditText etSearch;
+    private TextView tvTotalClasses;
+    private FloatingActionButton fabAddClass;
+    private ImageButton btnBack;
     
-    // Data
+    private ClassSimpleAdapter adapter;
     private List<ClassInfo> allClasses;
     private List<ClassInfo> filteredClasses;
-    private ClassAdapter classAdapter;
-    private String currentFilter = "all";
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_classes);
         
-        initializeViews();
-        setupClassData();
+        initViews();
+        setupListeners();
+        loadSampleData();
         setupRecyclerView();
-        setupEventHandlers();
-        updateStatistics();
+        updateTotalClasses();
     }
     
-    private void initializeViews() {
-        tvTitle = findViewById(R.id.tvTitle);
-        etSearch = findViewById(R.id.etSearch);
-        btnSearch = findViewById(R.id.btnSearch);
-        btnFilterAll = findViewById(R.id.btnFilterAll);
-        btnFilterActive = findViewById(R.id.btnFilterActive);
-        btnFilterInactive = findViewById(R.id.btnFilterInactive);
-        tvTotalClasses = findViewById(R.id.tvTotalClasses);
-        tvActiveClasses = findViewById(R.id.tvActiveClasses);
-        rvClasses = findViewById(R.id.rvClasses);
+    private void initViews() {
+        rvClasses = findViewById(R.id.rv_classes);
+        etSearch = findViewById(R.id.et_search);
+        tvTotalClasses = findViewById(R.id.tv_total_classes);
+        fabAddClass = findViewById(R.id.fab_add_class);
+        btnBack = findViewById(R.id.btn_back);
     }
     
-    private void setupClassData() {
+    private void setupListeners() {
+        btnBack.setOnClickListener(v -> onBackPressed());
+        
+        fabAddClass.setOnClickListener(v -> showAddClassDialog());
+        
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterClasses(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+    
+    private void loadSampleData() {
         allClasses = new ArrayList<>();
-        allClasses.add(new ClassInfo("English Class A", "Beginner level English for ages 6-7", 15, 12, "Diana Prince", true));
-        allClasses.add(new ClassInfo("English Class B", "Intermediate level English for ages 8-9", 20, 18, "Eve Wilson", true));
-        allClasses.add(new ClassInfo("English Class C", "Advanced level English for ages 9-10", 18, 15, "Frank Miller", false));
-        allClasses.add(new ClassInfo("English Class D", "Mixed level English for ages 7-8", 16, 10, "Grace Lee", true));
+        
+        // Sample data matching the HTML design
+        Calendar cal = Calendar.getInstance();
+        
+        cal.set(2024, 0, 15); // January 15, 2024
+        allClasses.add(new ClassInfo("Class 1A", "Beginner English", 20, 15, "Teacher A", true, cal.getTime()));
+        
+        cal.set(2024, 1, 20); // February 20, 2024
+        allClasses.add(new ClassInfo("Class 2B", "Intermediate English", 25, 20, "Teacher B", true, cal.getTime()));
+        
+        cal.set(2024, 2, 10); // March 10, 2024
+        allClasses.add(new ClassInfo("Class 3C", "Advanced English", 18, 18, "Teacher C", true, cal.getTime()));
+        
+        cal.set(2024, 3, 5); // April 5, 2024
+        allClasses.add(new ClassInfo("Class 4D", "Business English", 30, 22, "Teacher D", true, cal.getTime()));
+        
+        cal.set(2024, 4, 22); // May 22, 2024
+        allClasses.add(new ClassInfo("Class 5E", "Conversation English", 20, 16, "Teacher E", true, cal.getTime()));
         
         filteredClasses = new ArrayList<>(allClasses);
     }
     
     private void setupRecyclerView() {
-        classAdapter = new ClassAdapter(filteredClasses, this::onClassAction);
+        adapter = new ClassSimpleAdapter(this, filteredClasses, this);
         rvClasses.setLayoutManager(new LinearLayoutManager(this));
-        rvClasses.setAdapter(classAdapter);
+        rvClasses.setAdapter(adapter);
     }
     
-    private void setupEventHandlers() {
-        btnSearch.setOnClickListener(v -> performSearch());
-        btnFilterAll.setOnClickListener(v -> setFilter("all"));
-        btnFilterActive.setOnClickListener(v -> setFilter("active"));
-        btnFilterInactive.setOnClickListener(v -> setFilter("inactive"));
-    }
-    
-    private void performSearch() {
-        String searchTerm = etSearch.getText().toString().trim();
-        applyFilters(searchTerm);
-    }
-    
-    private void setFilter(String filter) {
-        currentFilter = filter;
-        
-        // Update button states
-        btnFilterAll.setBackground(getDrawable(R.drawable.button_secondary));
-        btnFilterActive.setBackground(getDrawable(R.drawable.button_secondary));
-        btnFilterInactive.setBackground(getDrawable(R.drawable.button_secondary));
-        
-        switch (filter) {
-            case "all":
-                btnFilterAll.setBackground(getDrawable(R.drawable.button_primary));
-                break;
-            case "active":
-                btnFilterActive.setBackground(getDrawable(R.drawable.button_primary));
-                break;
-            case "inactive":
-                btnFilterInactive.setBackground(getDrawable(R.drawable.button_primary));
-                break;
+    private void updateTotalClasses() {
+        if (tvTotalClasses != null) {
+            tvTotalClasses.setText("Total Classes: " + allClasses.size());
         }
-        
-        applyFilters(etSearch.getText().toString().trim());
     }
     
-    private void applyFilters(String searchTerm) {
-        filteredClasses.clear();
+    private void filterClasses(String query) {
+        if (query.isEmpty()) {
+            filteredClasses = new ArrayList<>(allClasses);
+        } else {
+            filteredClasses = allClasses.stream()
+                    .filter(classInfo -> classInfo.getName().toLowerCase().contains(query.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        adapter.filterData(filteredClasses);
+    }
+    
+    private void showAddClassDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_edit_class, null);
+        builder.setView(dialogView);
         
-        for (ClassInfo classInfo : allClasses) {
-            boolean matchesSearch = TextUtils.isEmpty(searchTerm) || 
-                classInfo.getName().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                classInfo.getTeacherName().toLowerCase().contains(searchTerm.toLowerCase());
+        AlertDialog dialog = builder.create();
+        
+        // Get dialog views
+        TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        EditText etClassName = dialogView.findViewById(R.id.et_class_name);
+        EditText etDescription = dialogView.findViewById(R.id.et_description);
+        EditText etCapacity = dialogView.findViewById(R.id.et_capacity);
+        EditText etTeacherName = dialogView.findViewById(R.id.et_teacher_name);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+        Button btnSave = dialogView.findViewById(R.id.btn_save);
+        
+        // Set title
+        tvTitle.setText("Add New Class");
+        
+        // Set click listeners
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        btnSave.setOnClickListener(v -> {
+            String className = etClassName.getText().toString().trim();
+            String description = etDescription.getText().toString().trim();
+            String capacityStr = etCapacity.getText().toString().trim();
+            String teacherName = etTeacherName.getText().toString().trim();
             
-            boolean matchesFilter = true;
-            switch (currentFilter) {
-                case "active":
-                    matchesFilter = classInfo.isActive();
-                    break;
-                case "inactive":
-                    matchesFilter = !classInfo.isActive();
-                    break;
+            // Validation
+            if (className.isEmpty()) {
+                etClassName.setError("Class name is required");
+                return;
             }
             
-            if (matchesSearch && matchesFilter) {
-                filteredClasses.add(classInfo);
+            if (description.isEmpty()) {
+                etDescription.setError("Description is required");
+                return;
             }
-        }
-        
-        classAdapter.notifyDataSetChanged();
-    }
-    
-    private void updateStatistics() {
-        int totalClasses = allClasses.size();
-        int activeClasses = 0;
-        
-        for (ClassInfo classInfo : allClasses) {
-            if (classInfo.isActive()) {
-                activeClasses++;
+            
+            if (capacityStr.isEmpty()) {
+                etCapacity.setError("Capacity is required");
+                return;
             }
-        }
+            
+            int capacity;
+            try {
+                capacity = Integer.parseInt(capacityStr);
+                if (capacity <= 0) {
+                    etCapacity.setError("Capacity must be greater than 0");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                etCapacity.setError("Invalid capacity");
+                return;
+            }
+            
+            if (teacherName.isEmpty()) {
+                etTeacherName.setError("Teacher name is required");
+                return;
+            }
+            
+            // Create new class
+            ClassInfo newClass = new ClassInfo(className, description, capacity, 0, teacherName, true, new Date());
+            allClasses.add(newClass);
+            filteredClasses.add(newClass);
+            adapter.updateData(filteredClasses);
+            updateTotalClasses();
+            
+            dialog.dismiss();
+            Toast.makeText(this, "Class added successfully", Toast.LENGTH_SHORT).show();
+        });
         
-        tvTotalClasses.setText(String.valueOf(totalClasses));
-        tvActiveClasses.setText(String.valueOf(activeClasses));
+        dialog.show();
     }
     
-    private void onClassAction(ClassInfo classInfo, String action) {
-        switch (action) {
-            case "edit":
-                editClass(classInfo);
-                break;
-            case "delete":
-                deleteClass(classInfo);
-                break;
-            case "toggle":
-                toggleClassStatus(classInfo);
-                break;
-        }
+    private void showEditClassDialog(ClassInfo classInfo) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_edit_class, null);
+        builder.setView(dialogView);
+        
+        AlertDialog dialog = builder.create();
+        
+        // Get dialog views
+        TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        EditText etClassName = dialogView.findViewById(R.id.et_class_name);
+        EditText etDescription = dialogView.findViewById(R.id.et_description);
+        EditText etCapacity = dialogView.findViewById(R.id.et_capacity);
+        EditText etTeacherName = dialogView.findViewById(R.id.et_teacher_name);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+        Button btnSave = dialogView.findViewById(R.id.btn_save);
+        
+        // Set title and populate fields
+        tvTitle.setText("Edit Class");
+        etClassName.setText(classInfo.getName());
+        etDescription.setText(classInfo.getDescription());
+        etCapacity.setText(String.valueOf(classInfo.getCapacity()));
+        etTeacherName.setText(classInfo.getTeacherName());
+        
+        // Set click listeners
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        btnSave.setOnClickListener(v -> {
+            String className = etClassName.getText().toString().trim();
+            String description = etDescription.getText().toString().trim();
+            String capacityStr = etCapacity.getText().toString().trim();
+            String teacherName = etTeacherName.getText().toString().trim();
+            
+            // Validation
+            if (className.isEmpty()) {
+                etClassName.setError("Class name is required");
+                return;
+            }
+            
+            if (description.isEmpty()) {
+                etDescription.setError("Description is required");
+                return;
+            }
+            
+            if (capacityStr.isEmpty()) {
+                etCapacity.setError("Capacity is required");
+                return;
+            }
+            
+            int capacity;
+            try {
+                capacity = Integer.parseInt(capacityStr);
+                if (capacity <= 0) {
+                    etCapacity.setError("Capacity must be greater than 0");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                etCapacity.setError("Invalid capacity");
+                return;
+            }
+            
+            if (teacherName.isEmpty()) {
+                etTeacherName.setError("Teacher name is required");
+                return;
+            }
+            
+            // Update class info
+            // Note: Since ClassInfo is immutable, we'll remove and add a new one
+            int index = allClasses.indexOf(classInfo);
+            if (index != -1) {
+                ClassInfo updatedClass = new ClassInfo(className, description, capacity, 
+                    classInfo.getCurrentStudents(), teacherName, classInfo.isActive(), classInfo.getCreationDate());
+                allClasses.set(index, updatedClass);
+                
+                // Update filtered list
+                int filteredIndex = filteredClasses.indexOf(classInfo);
+                if (filteredIndex != -1) {
+                    filteredClasses.set(filteredIndex, updatedClass);
+                }
+                
+                adapter.updateData(filteredClasses);
+                dialog.dismiss();
+                Toast.makeText(this, "Class updated successfully", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        dialog.show();
     }
     
-    private void editClass(ClassInfo classInfo) {
-        Toast.makeText(this, "Edit class: " + classInfo.getName(), Toast.LENGTH_SHORT).show();
-    }
-    
-    private void deleteClass(ClassInfo classInfo) {
+    private void showDeleteClassDialog(ClassInfo classInfo) {
         new AlertDialog.Builder(this)
-            .setTitle("Delete Class")
-            .setMessage("Are you sure you want to delete " + classInfo.getName() + "?")
-            .setPositiveButton("Delete", (dialog, which) -> {
-                allClasses.remove(classInfo);
-                applyFilters(etSearch.getText().toString().trim());
-                updateStatistics();
-                Toast.makeText(this, "Class deleted", Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
+                .setTitle("Delete Class")
+                .setMessage("Are you sure you want to delete " + classInfo.getName() + "?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    allClasses.remove(classInfo);
+                    filteredClasses.remove(classInfo);
+                    adapter.updateData(filteredClasses);
+                    updateTotalClasses();
+                    Toast.makeText(this, "Class deleted successfully", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    @Override
+    public void onClassClick(ClassInfo classInfo) {
+        // TODO: Navigate to class detail screen
+        Toast.makeText(this, "Selected: " + classInfo.getName(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onEditClick(ClassInfo classInfo) {
+        showEditOptionsDialog(classInfo);
     }
     
-    private void toggleClassStatus(ClassInfo classInfo) {
-        classInfo.setActive(!classInfo.isActive());
-        applyFilters(etSearch.getText().toString().trim());
-        updateStatistics();
-        Toast.makeText(this, "Class status updated", Toast.LENGTH_SHORT).show();
+    private void showEditOptionsDialog(ClassInfo classInfo) {
+        String[] options = {"Edit", "Delete"};
+        
+        new AlertDialog.Builder(this)
+                .setTitle("Class Options")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0: // Edit
+                            showEditClassDialog(classInfo);
+                            break;
+                        case 1: // Delete
+                            showDeleteClassDialog(classInfo);
+                            break;
+                    }
+                })
+                .show();
     }
 } 

@@ -24,7 +24,7 @@ public class StudentHomeActivity extends AppCompatActivity {
 
     private ImageView ivAvatar;
     private TextView tvUserName;
-    private ImageView imgFlashCard, imgBaitap, imgTest, imgVideo, imgBadge, imgProgress;
+    private ImageView imgFlashCard, imgBaitap, imgTest, imgVideo, imgBadge, imgProgress, imgStreak;
     private String userEmail;
 
     @Override
@@ -51,6 +51,7 @@ public class StudentHomeActivity extends AppCompatActivity {
         imgVideo = findViewById(R.id.imgVideo);
         imgBadge = findViewById(R.id.imgBadge);
         imgProgress = findViewById(R.id.imgThongke);
+        imgStreak = findViewById(R.id.imgStreak);
         // Nếu muốn set tên động:
         // tvUserName.setText("Hello, " + <userName>);
         setupImageClicks();
@@ -116,6 +117,11 @@ public class StudentHomeActivity extends AppCompatActivity {
         });
         imgProgress.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProgressTrackingActivity.class);
+            intent.putExtra("user_email", userEmail);
+            startActivity(intent);
+        });
+        imgStreak.setOnClickListener(v -> {
+            Intent intent = new Intent(this, LearningStreakActivity.class);
             intent.putExtra("user_email", userEmail);
             startActivity(intent);
         });

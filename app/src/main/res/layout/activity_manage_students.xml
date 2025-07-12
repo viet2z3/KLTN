@@ -4,206 +4,87 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_primary">
+    android:background="@color/white">
 
     <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="16dp"
-        android:background="@color/primary_blue">
+        android:paddingBottom="8dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="23dp"
+            android:layout_height="20sp"
+            android:src="@mipmap/back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back button" />
 
         <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/manage_students_title"
-            android:textSize="24sp"
+            android:layout_weight="1"
+            android:text="Manage Students"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/white"
-            android:gravity="center" />
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+
 
     </LinearLayout>
 
-    <!-- Search and Filter Section -->
-    <androidx.cardview.widget.CardView
+    <!-- Select Class Section -->
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/card_background">
+        android:text="Select Class"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- Search Bar -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <EditText
-                    android:id="@+id/etSearch"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Search students..."
-                    android:inputType="text"
-                    android:padding="12dp"
-                    android:background="@drawable/edit_text_background"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_secondary" />
-
-                <Button
-                    android:id="@+id/btnSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Search"
-                    android:textSize="14sp"
-                    android:padding="12dp"
-                    android:background="@drawable/button_primary"
-                    android:textColor="@color/white" />
-
-            </LinearLayout>
-
-            <!-- Filter Options -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btnFilterAll"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    android:text="All"
-                    android:textSize="12sp"
-                    android:padding="8dp"
-                    android:background="@drawable/button_primary"
-                    android:textColor="@color/white" />
-
-                <Button
-                    android:id="@+id/btnFilterActive"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:text="Active"
-                    android:textSize="12sp"
-                    android:padding="8dp"
-                    android:background="@drawable/button_secondary"
-                    android:textColor="@color/primary_blue" />
-
-                <Button
-                    android:id="@+id/btnFilterInactive"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:text="Inactive"
-                    android:textSize="12sp"
-                    android:padding="8dp"
-                    android:background="@drawable/button_secondary"
-                    android:textColor="@color/primary_blue" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <!-- Statistics Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:layout_marginBottom="16dp">
+        android:padding="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
-        <androidx.cardview.widget.CardView
+        <Spinner
+            android:id="@+id/spinnerClass"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/card_background">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tvTotalStudents"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="45"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary_blue" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Students"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/card_background">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tvActiveStudents"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="38"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/success_green" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Active Students"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
+            android:minWidth="160dp"
+            android:background="@drawable/edit_text_background"
+            android:padding="15dp"
+            android:popupBackground="@color/white"
+            android:spinnerMode="dropdown" />
 
     </LinearLayout>
+
+    <!-- Students Section -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Students"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp" />
 
     <!-- Students List -->
     <androidx.recyclerview.widget.RecyclerView
@@ -211,20 +92,61 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="16dp" />
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
 
-    <!-- Add Student Button -->
-    <Button
-        android:id="@+id/btnAddStudent"
+    <!-- Bottom Section -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Add New Student"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:padding="16dp"
-        android:background="@drawable/button_primary"
-        android:textColor="@color/white" />
+        android:orientation="vertical">
 
-</LinearLayout> 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            android:paddingBottom="20dp"
+            android:gravity="end">
+
+            <LinearLayout
+                android:id="@+id/btnAddStudent"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:background="@drawable/button_primary"
+                android:paddingStart="16dp"
+                android:paddingEnd="24dp"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="4dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@mipmap/icon_cong"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="Add icon"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add Student"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>

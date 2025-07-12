@@ -1,95 +1,101 @@
 package com.example.kltn.activities;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.widget.Toast;
+import android.content.Intent;
+import com.example.kltn.activities.ManageStudentsActivity;
+import com.example.kltn.activities.ProfileDetail;
+import com.example.kltn.activities.SettingsActivity;
+import com.example.kltn.activities.AssignLessonActivity;
+import com.example.kltn.activities.ViewStudentProgressActivity;
+import com.example.kltn.activities.EvaluateStudentActivity;
+
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kltn.R;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class TeacherDashboardActivity extends AppCompatActivity {
 
-    private TextView tvWelcomeMessage, tvTotalStudents, tvTotalClasses;
-    private Button btnManageStudents, btnAssignLesson, btnViewProgress, btnEvaluateStudents, btnProfile;
-    
-    private String userEmail;
+    private void setupDashboardMenu(View item, int iconRes, int titleRes, int subtitleRes) {
+        ImageView icon = item.findViewById(R.id.menu_icon);
+        TextView title = item.findViewById(R.id.menu_title);
+        TextView subtitle = item.findViewById(R.id.menu_subtitle);
+        icon.setImageResource(iconRes);
+        title.setText(titleRes);
+        subtitle.setText(subtitleRes);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_teacher_dashboard);
 
-        // Get user email from intent
-        userEmail = getIntent().getStringExtra("user_email");
+        setupDashboardMenu(findViewById(R.id.itemManageStudents), R.drawable.tc_class, R.string.manage_students, R.string.manage_students_sub);
+        setupDashboardMenu(findViewById(R.id.itemAssignLessons), R.drawable.tc_asign, R.string.assign_lessons, R.string.assign_lessons_sub);
+        setupDashboardMenu(findViewById(R.id.itemViewProgress), R.drawable.tc_theodoi, R.string.view_progress, R.string.view_progress_sub);
+        setupDashboardMenu(findViewById(R.id.itemEvaluateStudents), R.drawable.tc_danhgia, R.string.evaluate_students, R.string.evaluate_students_sub);
 
-        initViews();
-        setupData();
-        setupClickListeners();
+        // Handle bottom navigation clicks
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                // 1. Ấn Home: vẫn ở TeacherDashboardActivity (không làm gì)
+                return true;
+            } else if (id == R.id.nav_classes) {
+                // 2. Ấn Classes: chuyển sang ManageStudentsActivity
+                Intent intent = new Intent(this, ManageStudentsActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (id == R.id.nav_profile) {
+                // 3. Ấn Profile: chuyển sang ProfileDetail
+                Intent intent = new Intent(this, ProfileDetail.class);
+                startActivity(intent);
+                return true;
+            } else if (id == R.id.nav_setting) {
+                // 4. Ấn Setting: chuyển sang SettingsActivity
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            }
+            return false;
+        });
+
+        // Handle menu item clicks
+        // 1. Manage Students
+        View itemManageStudents = findViewById(R.id.itemManageStudents);
+        itemManageStudents.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ManageStudentsActivity.class);
+            startActivity(intent);
+        });
+
+        // 2. Assign Lessons
+        View itemAssignLessons = findViewById(R.id.itemAssignLessons);
+        itemAssignLessons.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AssignLessonActivity.class);
+            startActivity(intent);
+        });
+
+        // 3. View Progress
+        View itemViewProgress = findViewById(R.id.itemViewProgress);
+        itemViewProgress.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ViewStudentProgressActivity.class);
+            startActivity(intent);
+        });
+
+        // 4. Evaluate Students
+        View itemEvaluateStudents = findViewById(R.id.itemEvaluateStudents);
+        itemEvaluateStudents.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EvaluateStudentActivity.class);
+            startActivity(intent);
+        });
     }
 
-    private void initViews() {
-        tvWelcomeMessage = findViewById(R.id.tv_welcome_message);
-        tvTotalStudents = findViewById(R.id.tv_total_students);
-        tvTotalClasses = findViewById(R.id.tv_total_classes);
-        
-        btnManageStudents = findViewById(R.id.btn_manage_students);
-        btnAssignLesson = findViewById(R.id.btn_assign_lesson);
-        btnViewProgress = findViewById(R.id.btn_view_progress);
-        btnEvaluateStudents = findViewById(R.id.btn_evaluate_students);
-        btnProfile = findViewById(R.id.btn_profile);
-    }
-
-    private void setupData() {
-        // Set welcome message
-        String teacherName = userEmail != null ? userEmail.split("@")[0] : "Teacher";
-        tvWelcomeMessage.setText("Welcome back, " + teacherName + "!");
-        
-        // Set statistics
-        tvTotalStudents.setText("45");
-        tvTotalClasses.setText("8");
-    }
-
-    private void setupClickListeners() {
-        // Action buttons
-        btnManageStudents.setOnClickListener(v -> {
-            Intent intent = new Intent(TeacherDashboardActivity.this, ManageStudentsActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
-        });
-
-        btnAssignLesson.setOnClickListener(v -> {
-            Intent intent = new Intent(TeacherDashboardActivity.this, AssignLessonActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
-        });
-
-        btnViewProgress.setOnClickListener(v -> {
-            Intent intent = new Intent(TeacherDashboardActivity.this, ViewStudentProgressActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
-        });
-
-        btnEvaluateStudents.setOnClickListener(v -> {
-            Intent intent = new Intent(TeacherDashboardActivity.this, EvaluateStudentActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
-        });
-
-        btnProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(TeacherDashboardActivity.this, ProfileUpdateActivity.class);
-            intent.putExtra("user_email", userEmail);
-            startActivity(intent);
-        });
-    }
 } 

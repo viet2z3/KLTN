@@ -44,39 +44,25 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvStudentName, tvAge, tvClass, tvEmail, tvProgress, tvScore, tvStatus;
-        Button btnEdit, btnViewProgress, btnDelete;
+        private android.widget.ImageView ivStudentAvatar;
+        private TextView tvStudentName, tvStudentGrade, tvStudentAge;
+        private android.widget.ImageButton btnEditStudent;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            ivStudentAvatar = itemView.findViewById(R.id.ivStudentAvatar);
             tvStudentName = itemView.findViewById(R.id.tvStudentName);
-            tvAge = itemView.findViewById(R.id.tvAge);
-            tvClass = itemView.findViewById(R.id.tvClass);
-            tvEmail = itemView.findViewById(R.id.tvEmail);
-            tvProgress = itemView.findViewById(R.id.tvProgress);
-            tvScore = itemView.findViewById(R.id.tvScore);
-            tvStatus = itemView.findViewById(R.id.tvStatus);
-            btnEdit = itemView.findViewById(R.id.btnEdit);
-            btnViewProgress = itemView.findViewById(R.id.btnViewProgress);
-            btnDelete = itemView.findViewById(R.id.btnDelete);
+            tvStudentGrade = itemView.findViewById(R.id.tvStudentGrade);
+            tvStudentAge = itemView.findViewById(R.id.tvStudentAge);
+            btnEditStudent = itemView.findViewById(R.id.btnEditStudent);
         }
 
         void bind(Student student) {
             tvStudentName.setText(student.getName());
-            tvAge.setText(student.getAge() + " years old");
-            tvClass.setText(student.getClassName());
-            tvEmail.setText(student.getEmail());
-            tvProgress.setText(student.getProgress() + "% Complete");
-            tvScore.setText("Score: " + student.getScore() + "/100");
-            tvStatus.setText(student.isActive() ? "Active" : "Inactive");
+            tvStudentGrade.setText("Grade: " + student.getGrade() + ", Email: " + student.getEmail());
+            tvStudentAge.setText("Age: " + student.getAge());
 
-            btnEdit.setOnClickListener(v -> {
-                if (listener != null) listener.onStudentAction(student, "edit");
-            });
-            btnViewProgress.setOnClickListener(v -> {
-                if (listener != null) listener.onStudentAction(student, "view_progress");
-            });
-            btnDelete.setOnClickListener(v -> {
+            btnEditStudent.setOnClickListener(v -> {
                 if (listener != null) listener.onStudentAction(student, "delete");
             });
         }

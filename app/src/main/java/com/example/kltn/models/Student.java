@@ -29,4 +29,12 @@ public class Student {
     public int getScore() { return score; }
     public int getProgress() { return progress; }
     public boolean isActive() { return isActive; }
+    
+    // Method to get grade from class name (assuming class name contains grade info)
+    public String getGrade() {
+        if (className != null && className.contains("Grade")) {
+            return className.replaceAll(".*Grade\\s*(\\d+).*", "$1");
+        }
+        return "N/A";
+    }
 } 
