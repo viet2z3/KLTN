@@ -9,10 +9,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
 import android.widget.ImageView;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.kltn.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 public class ChangePasswordActivity extends AppCompatActivity {
     
@@ -25,13 +28,18 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private ImageView btnBack;
     
     // Current password (in real app, this would be stored securely)
-    private String currentPassword = "password123";
+    private String userId;
+    private FirebaseFirestore db;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
-        
+
+        // Lấy user_id từ Intent
+        userId = getIntent().getStringExtra("user_id");
+        db = FirebaseFirestore.getInstance();
+
         initializeViews();
         setupEventHandlers();
     }
@@ -55,88 +63,87 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String newPassword = etNewPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
         
+        // Log user_id để kiểm tra
+        Log.d("ChangePass", "user_id: " + userId);
+        Toast.makeText(this, "user_id: " + userId, Toast.LENGTH_SHORT).show();
+
         // Clear previous errors
         etOldPassword.setError(null);
         etNewPassword.setError(null);
         etConfirmPassword.setError(null);
         
-        // Validate old password
+        // Validate input như cũ...
         if (TextUtils.isEmpty(oldPassword)) {
             etOldPassword.setError("Please enter your current password");
             etOldPassword.requestFocus();
             return;
         }
-        
-        if (!oldPassword.equals(currentPassword)) {
-            etOldPassword.setError(getString(R.string.error_old_password_incorrect));
-            etOldPassword.requestFocus();
-            return;
-        }
-        
-        // Validate new password
         if (TextUtils.isEmpty(newPassword)) {
             etNewPassword.setError("Please enter a new password");
             etNewPassword.requestFocus();
             return;
         }
-        
         if (newPassword.length() < 6) {
             etNewPassword.setError("Password must be at least 6 characters");
             etNewPassword.requestFocus();
             return;
         }
-        
         if (newPassword.equals(oldPassword)) {
             etNewPassword.setError("New password must be different from current password");
             etNewPassword.requestFocus();
             return;
         }
-        
-        // Validate confirm password
         if (TextUtils.isEmpty(confirmPassword)) {
             etConfirmPassword.setError("Please confirm your new password");
             etConfirmPassword.requestFocus();
             return;
         }
-        
         if (!newPassword.equals(confirmPassword)) {
             etConfirmPassword.setError(getString(R.string.error_passwords_dont_match));
             etConfirmPassword.requestFocus();
             return;
         }
-        
-        // Simulate password change
-        // In a real app, this would make an API call to change the password
-        performPasswordChange(newPassword);
-    }
-    
-    private void performPasswordChange(String newPassword) {
-        // Simulate API call delay
+
+        // Kiểm tra mật khẩu cũ trên Firestore
         btnChangePassword.setEnabled(false);
-        // Nếu muốn đổi text trên nút, cần truy cập TextView con
-        TextView btnText = btnChangePassword.findViewById(R.id.btnChangePassword);
-        if (btnText != null) btnText.setText(R.string.loading);
-        
-        // Simulate network delay
-        new android.os.Handler().postDelayed(() -> {
-            // Update current password
-            currentPassword = newPassword;
-            
-            // Show success message
-            Toast.makeText(this, R.string.password_change_success, Toast.LENGTH_LONG).show();
-            
-            // Clear form
-            etOldPassword.setText("");
-            etNewPassword.setText("");
-            etConfirmPassword.setText("");
-            
-            // Reset button
+        db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
+            Log.d("ChangePass", "Document exists: " + documentSnapshot.exists());
+            if (documentSnapshot.exists()) {
+                String currentPassword = documentSnapshot.getString("password");
+                Log.d("ChangePass", "Current password in Firestore: " + currentPassword);
+                if (!oldPassword.equals(currentPassword)) {
+                    etOldPassword.setError(getString(R.string.error_old_password_incorrect));
+                    etOldPassword.requestFocus();
+                    btnChangePassword.setEnabled(true);
+                    return;
+                }
+                // Đúng mật khẩu cũ, cập nhật mật khẩu mới
+                db.collection("users").document(userId)
+                  .update("password", newPassword)
+                  .addOnSuccessListener(aVoid -> {
+                      Log.d("ChangePass", "Password updated successfully for user_id: " + userId);
+                      Toast.makeText(this, "Đã đổi mật khẩu Firestore cho user_id: " + userId, Toast.LENGTH_LONG).show();
+                      etOldPassword.setText("");
+                      etNewPassword.setText("");
+                      etConfirmPassword.setText("");
+                      btnChangePassword.setEnabled(true);
+                      finish();
+                  })
+                  .addOnFailureListener(e -> {
+                      Log.e("ChangePass", "Update failed: " + e.getMessage());
+                      Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                      btnChangePassword.setEnabled(true);
+                  });
+            } else {
+                Log.e("ChangePass", "Không tìm thấy user với user_id: " + userId);
+                Toast.makeText(this, "Không tìm thấy user!", Toast.LENGTH_LONG).show();
+                btnChangePassword.setEnabled(true);
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("ChangePass", "Lỗi truy vấn Firestore: " + e.getMessage());
+            Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
             btnChangePassword.setEnabled(true);
-            if (btnText != null) btnText.setText(R.string.btn_change_password);
-            
-            // Close activity
-            finish();
-        }, 1500);
+        });
     }
     
     @Override

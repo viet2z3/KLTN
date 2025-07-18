@@ -5,97 +5,93 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.kltn.R;
-import com.example.kltn.adapters.ContentAdapter;
 import com.example.kltn.models.ContentItem;
-import com.example.kltn.utils.DummyDataGenerator;
-
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FlashcardsFragment extends Fragment {
-
     private RecyclerView recyclerView;
-    private ContentAdapter adapter;
-    private List<ContentItem> flashcardList;
+    private FlashcardSetAdapter adapter;
+    private List<ContentItem> flashcardSets = new ArrayList<>();
+    private String courseId = "";
+    private String searchQuery = "";
+
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
+        loadFlashcardSets();
+    }
+
+    public void setSearchQuery(String query) {
+        this.searchQuery = query == null ? "" : query.trim().toLowerCase();
+        filterAndShow();
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_flashcards, container, false);
-        
-        initViews(view);
-        setupRecyclerView();
-        loadFlashcards();
-        
+        recyclerView = view.findViewById(R.id.rvFlashcardSets);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new FlashcardSetAdapter(flashcardSets);
+        recyclerView.setAdapter(adapter);
+        loadFlashcardSets();
         return view;
     }
 
-    private void initViews(View view) {
-        recyclerView = view.findViewById(R.id.recyclerView);
+    private void loadFlashcardSets() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        if (courseId != null && !courseId.isEmpty()) {
+            db.collection("flashcard_sets").whereEqualTo("course_id", courseId).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    flashcardSets.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        ContentItem item = new ContentItem();
+                        item.setId(doc.getId());
+                        item.setTitle(doc.getString("title"));
+                        item.setDescription(doc.getString("description"));
+                        flashcardSets.add(item);
+                    }
+                    filterAndShow();
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi tải flashcard sets: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        } else {
+            db.collection("flashcard_sets").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    flashcardSets.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        ContentItem item = new ContentItem();
+                        item.setId(doc.getId());
+                        item.setTitle(doc.getString("title"));
+                        item.setDescription(doc.getString("description"));
+                        flashcardSets.add(item);
+                    }
+                    filterAndShow();
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi tải flashcard sets: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
     }
 
-    private void setupRecyclerView() {
-        flashcardList = new ArrayList<>();
-        adapter = new ContentAdapter(getContext(), flashcardList);
-        
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    private void filterAndShow() {
+        List<ContentItem> filtered = new ArrayList<>();
+        if (searchQuery.isEmpty()) {
+            filtered.addAll(flashcardSets);
+        } else {
+            for (ContentItem item : flashcardSets) {
+                if ((item.getTitle() != null && item.getTitle().toLowerCase().contains(searchQuery)) ||
+                    (item.getDescription() != null && item.getDescription().toLowerCase().contains(searchQuery))) {
+                    filtered.add(item);
+                }
+            }
+        }
+        adapter = new FlashcardSetAdapter(filtered);
         recyclerView.setAdapter(adapter);
-        
-        adapter.setOnItemClickListener(new ContentAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(ContentItem item) {
-                Toast.makeText(getContext(), "Clicked: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to flashcard detail activity
-            }
-
-            @Override
-            public void onEditClick(ContentItem item) {
-                Toast.makeText(getContext(), "Edit: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to edit flashcard activity
-            }
-
-            @Override
-            public void onDeleteClick(ContentItem item) {
-                showDeleteConfirmationDialog(item);
-            }
-        });
-    }
-
-    private void loadFlashcards() {
-        // Load dummy data for UI testing
-        flashcardList.clear();
-        flashcardList.addAll(DummyDataGenerator.getFlashcards());
-        adapter.notifyDataSetChanged();
-    }
-
-    public void updateFlashcards(List<ContentItem> newList) {
-        flashcardList.clear();
-        flashcardList.addAll(newList);
-        adapter.notifyDataSetChanged();
-    }
-
-    public void refreshFlashcards() {
-        loadFlashcards();
-    }
-
-    private void showDeleteConfirmationDialog(ContentItem item) {
-        new android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Delete Flashcard")
-            .setMessage("Are you sure you want to delete \"" + item.getTitle() + "\"?")
-            .setPositiveButton("Delete", (dialog, which) -> {
-                // TODO: Delete from Firebase
-                Toast.makeText(getContext(), "Deleted: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                refreshFlashcards();
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
     }
 } 

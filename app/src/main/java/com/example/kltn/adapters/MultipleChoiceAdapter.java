@@ -13,10 +13,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.kltn.models.Question;
 import com.example.kltn.R;
 import java.util.List;
+import com.example.kltn.managers.BadgeManager;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
 
 public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAdapter.VH> {
     List<Question> questions;
-    public MultipleChoiceAdapter(List<Question> q) { questions = q; }
+    private String userId;
+    private String exerciseId;
+    public MultipleChoiceAdapter(List<Question> q, String userId, String exerciseId) {
+        questions = q;
+        this.userId = userId;
+        this.exerciseId = exerciseId;
+    }
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -26,17 +39,18 @@ public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAd
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         Question q = questions.get(position);
-        holder.img.setImageResource(q.imageRes);
+
         holder.tvQ.setText(q.question);
         holder.rg.clearCheck();
         holder.tvFeedback.setVisibility(View.GONE);
         holder.btnSubmit.setEnabled(true);
-        // Gán đáp án
         for (int i = 0; i < 4; i++) {
             RadioButton rb = holder.rb[i];
             rb.setText(q.choices.get(i));
             rb.setChecked(false);
+            rb.setEnabled(true);
         }
+        holder.rg.setEnabled(true);
         holder.btnSubmit.setOnClickListener(v -> {
             int checkedId = holder.rg.getCheckedRadioButtonId();
             if (checkedId == -1) {
@@ -51,10 +65,27 @@ public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAd
                     holder.tvFeedback.setTextColor(0xFF388E3C);
                     holder.tvFeedback.setVisibility(View.VISIBLE);
                     holder.btnSubmit.setEnabled(false);
+                    for (int i = 0; i < 4; i++) holder.rb[i].setEnabled(false);
                 } else {
                     holder.tvFeedback.setText("Sai! Đáp án đúng: " + q.answer);
                     holder.tvFeedback.setTextColor(0xFFD32F2F);
                     holder.tvFeedback.setVisibility(View.VISIBLE);
+                    holder.btnSubmit.setEnabled(false);
+                    for (int i = 0; i < 4; i++) holder.rb[i].setEnabled(false);
+                }
+                // Nếu là câu cuối cùng, lưu tiến độ và trao badge
+                if (position == questions.size() - 1 && userId != null && exerciseId != null) {
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("users").document(userId)
+                        .collection("exercises").document(exerciseId)
+                        .set(new java.util.HashMap<String, Object>() {{
+                            put("completed", true);
+                            put("timestamp", System.currentTimeMillis());
+                        }});
+                    BadgeManager badgeManager = new BadgeManager(userId);
+                    badgeManager.checkAndAwardExerciseBadge();
+                    badgeManager.updateLearningStreakAndCheckBadge(); // Gọi cập nhật streak học tập
+                    updateLearningHistory(userId); // <-- Thêm dòng này
                 }
             }
         });
@@ -62,14 +93,14 @@ public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAd
     @Override
     public int getItemCount() { return questions.size(); }
     public static class VH extends RecyclerView.ViewHolder {
-        ImageView img;
+
         TextView tvQ, tvFeedback;
         RadioGroup rg;
         RadioButton[] rb = new RadioButton[4];
         Button btnSubmit;
         public VH(View v) {
             super(v);
-            img = v.findViewById(R.id.imgIllustration);
+
             tvQ = v.findViewById(R.id.tvQuestion);
             rg = v.findViewById(R.id.rgAnswers);
             rb[0] = v.findViewById(R.id.rbAnswer1);
@@ -79,5 +110,18 @@ public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAd
             btnSubmit = v.findViewById(R.id.btnSubmit);
             tvFeedback = v.findViewById(R.id.tvFeedback);
         }
+    }
+
+    // Cập nhật learningHistory khi user học xong
+    private void updateLearningHistory(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
+            Map<String, Boolean> history = (Map<String, Boolean>) documentSnapshot.get("learningHistory");
+            if (history == null) history = new HashMap<>();
+            history.put(today, true);
+            db.collection("users").document(userId)
+                .update("learningHistory", history);
+        });
     }
 } 

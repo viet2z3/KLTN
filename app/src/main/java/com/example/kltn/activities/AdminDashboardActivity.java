@@ -13,12 +13,15 @@ import android.widget.LinearLayout;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    private LinearLayout actionManageUsers, actionManageClasses, actionManageContent, actionManageReports, actionSettings;
+    private LinearLayout actionManageUsers, actionManageClasses, actionManageContent, actionSettings, actionManageCourses;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
+
+        userId = getIntent().getStringExtra("user_id");
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav_admin);
         bottomNav.setOnItemSelectedListener(item -> {
@@ -28,14 +31,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_users) {
                 Intent intent = new Intent(this, ManageUsersActivity.class);
+                intent.putExtra("user_id", userId);
                 startActivity(intent);
                 return true;
             } else if (id == R.id.nav_classes) {
                 Intent intent = new Intent(this, ManageClassesActivity.class);
+                intent.putExtra("user_id", userId);
                 startActivity(intent);
                 return true;
             } else if (id == R.id.nav_content) {
                 Intent intent = new Intent(this, ManageContentActivity.class);
+                intent.putExtra("user_id", userId);
                 startActivity(intent);
                 return true;
             }
@@ -52,25 +58,35 @@ public class AdminDashboardActivity extends AppCompatActivity {
         actionManageClasses = findViewById(R.id.action_manage_classes);
 
         actionManageContent = findViewById(R.id.action_manage_content);
-        actionManageReports = findViewById(R.id.action_manage_reports);
         actionSettings = findViewById(R.id.action_settings);
+        actionManageCourses = findViewById(R.id.action_manage_courses);
     }
 
     private void setupQuickActionClicks() {
         actionManageUsers.setOnClickListener(v -> {
-            startActivity(new Intent(this, ManageUsersActivity.class));
+            Intent intent = new Intent(this, ManageUsersActivity.class);
+            intent.putExtra("user_id", userId);
+            startActivity(intent);
         });
         actionManageClasses.setOnClickListener(v -> {
-            startActivity(new Intent(this, ManageClassesActivity.class));
+            Intent intent = new Intent(this, ManageClassesActivity.class);
+            intent.putExtra("user_id", userId);
+            startActivity(intent);
         });
         actionManageContent.setOnClickListener(v -> {
-            startActivity(new Intent(this, ManageContentActivity.class));
-        });
-        actionManageReports.setOnClickListener(v -> {
-            startActivity(new Intent(this, SystemReportsActivity.class));
+            Intent intent = new Intent(this, ManageContentActivity.class);
+            intent.putExtra("user_id", userId);
+            startActivity(intent);
         });
         actionSettings.setOnClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("user_id", userId);
+            startActivity(intent);
+        });
+        actionManageCourses.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ManageCoursesActivity.class);
+            intent.putExtra("user_id", userId);
+            startActivity(intent);
         });
     }
 

@@ -7,18 +7,37 @@
     app:cardCornerRadius="16dp"
     app:cardElevation="4dp">
 
-    <RadioButton
-        android:id="@+id/rbAnswer"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="Đáp án mẫu"
-        android:background="@drawable/radiobutton_choice_selector"
-        android:button="@null"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:layout_gravity="center_vertical" />
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rbAnswer"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Đáp án mẫu"
+            android:background="@drawable/radiobutton_choice_selector"
+            android:button="@null"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/etAnswer"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Nhập đáp án..."
+            android:textSize="16sp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:background="@android:color/transparent"
+            android:textColor="@color/black"
+            android:gravity="center_vertical"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </androidx.cardview.widget.CardView> 

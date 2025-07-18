@@ -4,56 +4,45 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    card_view:cardCornerRadius="12dp"
-    card_view:cardElevation="4dp">
+    card_view:cardCornerRadius="16dp"
+    card_view:cardElevation="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="10dp"
-        android:padding="16dp">
-
-        <ImageView
-            android:id="@+id/imgIllustration"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/flashcard_exp"
-            android:contentDescription="Minh họa" />
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/tvQuestion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Câu hỏi điền từ mẫu"
-            android:textColor="#5C708A"
-            android:textSize="20sp"
+            android:text="Câu hỏi điền từ"
+            android:textColor="#222"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
         <EditText
-            android:hint="Enter your answer"
+            android:hint="Nhập đáp án của bạn"
             android:id="@+id/etAnswer"
-            android:textColor="#5C708A"
+            android:textColor="#222"
             android:textSize="16sp"
-            android:layout_marginVertical="12dp"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="14dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/login_background"
-            android:paddingVertical="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="32dp"
-            />
+            android:layout_height="48dp"
+            android:background="@drawable/rounded_edittext"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:inputType="textCapSentences"/>
 
         <Button
             android:id="@+id/btnSubmit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Submit"
-            android:layout_gravity="center"
             android:backgroundTint="#5C708A"
+            android:layout_gravity="center"
             android:layout_marginTop="12dp" />
 
         <TextView
@@ -64,5 +53,6 @@
             android:textColor="#388E3C"
             android:layout_marginTop="8dp"
             android:visibility="gone" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView> 
