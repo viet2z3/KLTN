@@ -305,7 +305,7 @@
                         android:clipToPadding="false"
                         android:elevation="1dp"
                         android:layout_row="1"
-                        android:layout_column="0"
+                        android:layout_column="1"
                         android:shape="rectangle"
                         android:radius="12dp">
                         <ImageView
@@ -323,9 +323,9 @@
                             android:paddingTop="10dp" />
                     </LinearLayout>
 
-                    <!-- Action 4: Reports -->
+                    <!-- Action 5: Settings -->
                     <LinearLayout
-                        android:id="@+id/action_manage_reports"
+                        android:id="@+id/action_manage_courses"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
@@ -338,25 +338,24 @@
                         android:clipToPadding="false"
                         android:elevation="1dp"
                         android:layout_row="1"
-                        android:layout_column="1"
+                        android:layout_column="0"
                         android:shape="rectangle"
                         android:radius="12dp">
                         <ImageView
                             android:layout_width="36dp"
                             android:layout_height="36dp"
-                            android:src="@mipmap/admin_report"
-                            android:contentDescription="Reports" />
+                            android:src="@mipmap/admin_role"
+                            android:contentDescription="Manage Courses" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Reports"
+                            android:text="Manage Courses"
                             android:textColor="#101518"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:paddingTop="10dp" />
                     </LinearLayout>
 
-                    <!-- Action 5: Settings -->
                     <LinearLayout
                         android:id="@+id/action_settings"
                         android:layout_width="0dp"
