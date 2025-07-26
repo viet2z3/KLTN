@@ -66,13 +66,15 @@
                     android:layout_weight="2"
                     android:orientation="vertical">
 
-                    <Spinner
-                        android:id="@+id/spinnerStudentName"
+                    <TextView
+                        android:id="@+id/tvStudentName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:background="@drawable/spinner_bg"
-                        android:padding="8dp" />
+                        android:text="Student Name"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp" />
 
                     <TextView
                         android:id="@+id/tvStudentClass"
@@ -129,40 +131,7 @@
 
             </LinearLayout>
 
-            <!-- Subject Selection Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="6dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:text="Subject"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <Spinner
-                        android:id="@+id/spinnerSubject"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="@drawable/spinner_bg"
-                        android:padding="16dp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
+            
 
             <!-- Rating Section Card -->
             <androidx.cardview.widget.CardView

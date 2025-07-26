@@ -49,7 +49,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:id="@+id/layout_stats_cards">
 
             <!-- Words Learned Card -->
             <LinearLayout
@@ -311,12 +312,141 @@
                 </LinearLayout>
             </LinearLayout>
 
+        <!-- Evaluation Card (đặt ngoài LinearLayout 4 stats card để tránh lỗi resource) -->
         </LinearLayout>
 
-        <!-- Bottom Navigation Placeholder -->
-        <View
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_evaluation"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="#FFFFFF" />
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tv_evaluation_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ngày đánh giá: 2025-07-24"
+                    android:textColor="#222"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_teacher_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Giáo viên đánh giá: "
+                    android:textColor="#5C708A"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+                <!-- 3 dòng, mỗi dòng 1 rating bar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:text="Tham gia: "
+                        android:textColor="#888"
+                        android:textSize="14sp" />
+                    <RatingBar
+                        android:id="@+id/rating_participation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:isIndicator="true"
+                        style="@style/Widget.AppCompat.RatingBar.Small"
+                        android:progressTint="@color/star_yellow" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:text="Hiểu bài: "
+                        android:textColor="#888"
+                        android:textSize="14sp" />
+                    <RatingBar
+                        android:id="@+id/rating_understanding"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:isIndicator="true"
+                        style="@style/Widget.AppCompat.RatingBar.Small"
+                        android:progressTint="@color/star_yellow" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:text="Tiến bộ: "
+                        android:textColor="#888"
+                        android:textSize="14sp" />
+                    <RatingBar
+                        android:id="@+id/rating_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:isIndicator="true"
+                        style="@style/Widget.AppCompat.RatingBar.Small"
+                        android:progressTint="@color/star_yellow" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_overall_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Điểm tổng: 0.0"
+                    android:textColor="#222"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:id="@+id/tv_score"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Điểm số: 0"
+                    android:textColor="#222"
+                    android:textSize="15sp"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:id="@+id/tv_comments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nhận xét: "
+                    android:textColor="#5C708A"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+            <!-- Bottom Navigation Placeholder -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="#FFFFFF" />
     </LinearLayout>
 </ScrollView>

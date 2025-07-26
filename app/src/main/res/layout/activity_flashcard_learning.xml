@@ -62,10 +62,30 @@
                         app:tabIndicatorColor="#5C708A"
                         app:tabSelectedTextColor="#263238"
                         app:tabTextColor="#607D8B"
-                        app:tabMode="fixed"
+                        app:tabMode="scrollable"
                         app:tabGravity="fill"
                         android:textSize="21sp"
                         android:fontFamily="sans-serif-medium" />
+
+                    <!-- Empty state message for flashcard set with no cards -->
+                    <TextView
+                        android:id="@+id/tvEmptyFlashcardSet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bộ flashcard này chưa có dữ liệu."
+                        android:textSize="18sp"
+                        android:textColor="#E53935"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        android:padding="24dp"
+                        android:background="#FFF8E1" />
+
+                    <!-- Main flashcard container for easy visibility control -->
+                    <LinearLayout
+                        android:id="@+id/flashcardMainContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
                     <androidx.cardview.widget.CardView
                         android:id="@+id/flashcardCardView"
                         android:layout_width="match_parent"
@@ -186,6 +206,7 @@
                         app:indicatorColor="#5C708A"
                         app:trackColor="#E0E0E0"
                         app:trackThickness="8dp" />
+                </LinearLayout>
                     <LinearLayout
                         android:id="@+id/rgb3qlv77dz5"
                         android:layout_width="match_parent"

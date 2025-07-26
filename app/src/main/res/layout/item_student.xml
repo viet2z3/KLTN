@@ -34,19 +34,26 @@
             android:textColor="@color/black" />
 
         <TextView
-            android:id="@+id/tvStudentGrade"
+            android:id="@+id/tvStudentEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Grade: 1, Email: student@example.com"
+            android:text="student@example.com"
             android:textSize="14sp"
             android:textColor="#687282"
             android:layout_marginTop="2dp" />
-
         <TextView
-            android:id="@+id/tvStudentAge"
+            android:id="@+id/tvStudentGender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Age: 6"
+            android:text="Gender: N/A"
+            android:textSize="14sp"
+            android:textColor="#687282"
+            android:layout_marginTop="2dp" />
+        <TextView
+            android:id="@+id/tvStudentStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: Chưa có lớp"
             android:textSize="14sp"
             android:textColor="#687282"
             android:layout_marginTop="2dp" />

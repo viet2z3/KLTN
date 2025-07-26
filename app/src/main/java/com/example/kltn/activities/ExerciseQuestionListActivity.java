@@ -14,6 +14,7 @@ import com.example.kltn.adapters.MultipleChoiceAdapter;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,18 @@ public class ExerciseQuestionListActivity extends AppCompatActivity {
                     if ("fill_blank".equals(type)) {
                         String questionText = (String) q.get("question_text");
                         String correctAnswer = (String) q.get("correct_answer");
-                        questions.add(new Question(questionText, correctAnswer, 0, null));
+                        Question question = new Question();
+                        question.setContent(questionText);
+                        question.setCorrect_answer(correctAnswer);
+                        question.setType("fill_blank");
+                        question.setOptions(new ArrayList<>());
+                        question.setExplanation("");
+                        question.setDifficulty("easy");
+                        question.setTags(new ArrayList<>());
+                        question.setCourse_id("LABTsID1zvPRsVjPjhLd");
+                        question.setCreated_by("admin");
+                        question.setIs_active(true);
+                        questions.add(question);
                     } else {
                         String questionText = (String) q.get("question_text");
                         String correctAnswer = "";
@@ -52,7 +64,18 @@ public class ExerciseQuestionListActivity extends AppCompatActivity {
                             List<String> options = (List<String>) q.get("options");
                             int correctIdx = ((Number) q.get("correct_answer")).intValue();
                             correctAnswer = options.get(correctIdx);
-                            questions.add(new Question(questionText, correctAnswer, 0, options));
+                            Question question = new Question();
+                            question.setContent(questionText);
+                            question.setCorrect_answer(correctAnswer);
+                            question.setType("multiple_choice");
+                            question.setOptions(options);
+                            question.setExplanation("");
+                            question.setDifficulty("easy");
+                            question.setTags(new ArrayList<>());
+                            question.setCourse_id("LABTsID1zvPRsVjPjhLd");
+                            question.setCreated_by("admin");
+                            question.setIs_active(true);
+                            questions.add(question);
                         }
                     }
                 }

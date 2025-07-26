@@ -12,6 +12,10 @@ import java.util.List;
 
 public class VideosManageAdapter extends RecyclerView.Adapter<VideosManageAdapter.ViewHolder> {
     private List<VideoLesson> videos;
+    private OnVideoActionListener actionListener;
+    public void setOnVideoActionListener(OnVideoActionListener listener) {
+        this.actionListener = listener;
+    }
     public VideosManageAdapter(List<VideoLesson> videos) {
         this.videos = videos;
     }
@@ -28,6 +32,10 @@ public class VideosManageAdapter extends RecyclerView.Adapter<VideosManageAdapte
         holder.tvDesc.setText(v.description);
         holder.tvDuration.setText("Duration: " + v.duration);
         holder.tvTopic.setText("Topic: " + v.topic);
+        holder.itemView.setOnLongClickListener(view -> {
+            if (actionListener != null) actionListener.onLongClick(v, view);
+            return true;
+        });
     }
     @Override
     public int getItemCount() { return videos.size(); }
@@ -40,5 +48,8 @@ public class VideosManageAdapter extends RecyclerView.Adapter<VideosManageAdapte
             tvDuration = itemView.findViewById(R.id.tvVideoDuration);
             tvTopic = itemView.findViewById(R.id.tvVideoTopic);
         }
+    }
+    public interface OnVideoActionListener {
+        void onLongClick(VideoLesson video, View anchorView);
     }
 } 

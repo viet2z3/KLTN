@@ -19,6 +19,8 @@ import java.util.Map;
 import android.widget.RadioButton;
 import android.util.Log;
 import android.os.CountDownTimer;
+import android.widget.Toast;
+
 import com.example.kltn.managers.BadgeManager;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -104,10 +106,24 @@ public class TestDetailActivity extends AppCompatActivity {
         });
         btnSubmit.setOnClickListener(v -> {
             saveUserAnswer();
+            // Kiểm tra còn đáp án bỏ trống không
+            for (int i = 0; i < questions.size(); i++) {
+                String ua = userAnswers.get(i) == null ? "" : userAnswers.get(i).trim();
+                if (ua.isEmpty()) {
+                    Toast.makeText(this, "Bạn cần trả lời tất cả các câu hỏi trước khi nộp bài", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
             int correct = 0;
             for (int i = 0; i < questions.size(); i++) {
                 String ua = userAnswers.get(i) == null ? "" : userAnswers.get(i).trim();
                 String ans = questions.get(i).answer == null ? "" : questions.get(i).answer.trim();
+                // Nếu là fill_blank thì chuẩn hóa thêm khoảng trắng
+                String qType = questions.get(i).type != null ? questions.get(i).type.trim().toLowerCase() : "";
+                if ("fill_blank".equals(qType)) {
+                    ua = ua.replaceAll("\\s+", " ").trim();
+                    ans = ans.replaceAll("\\s+", " ").trim();
+                }
                 if (ua.equalsIgnoreCase(ans)) correct++;
             }
             score = correct;
@@ -156,7 +172,7 @@ public class TestDetailActivity extends AppCompatActivity {
             EditText et = v.findViewById(R.id.etAnswer);
             rb.setVisibility(View.GONE);
             et.setVisibility(View.VISIBLE);
-            et.setText(userAnswers.get(currentIndex));
+            et.setText(userAnswers.get(idx));
             et.setHint("Nhập đáp án...");
             et.setOnFocusChangeListener((view, hasFocus) -> {
                 if (!hasFocus) {

@@ -9,6 +9,7 @@ public class VideoLesson {
     public String thumbnailUrl;
     public String videoUrl;
     public String teacherId;
+    public String courseId;
 
     public VideoLesson() {}
 

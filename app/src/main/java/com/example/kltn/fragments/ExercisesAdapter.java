@@ -12,6 +12,16 @@ import java.util.List;
 
 public class ExercisesAdapter extends RecyclerView.Adapter<ExercisesAdapter.ViewHolder> {
     private List<ContentItem> exercises;
+    private OnExerciseActionListener actionListener;
+
+    public interface OnExerciseActionListener {
+        void onEdit(ContentItem exercise);
+        void onDelete(ContentItem exercise);
+    }
+
+    public void setOnExerciseActionListener(OnExerciseActionListener listener) {
+        this.actionListener = listener;
+    }
 
     public ExercisesAdapter(List<ContentItem> exercises) {
         this.exercises = exercises;
@@ -29,6 +39,25 @@ public class ExercisesAdapter extends RecyclerView.Adapter<ExercisesAdapter.View
         ContentItem item = exercises.get(position);
         holder.tvTitle.setText(item.getTitle());
         holder.tvDescription.setText("Type: " + item.getDescription());
+        // Long click để hiện menu sửa/xoá
+        holder.itemView.setOnLongClickListener(v -> {
+            if (actionListener == null) return false;
+            android.widget.PopupMenu popup = new android.widget.PopupMenu(holder.itemView.getContext(), v);
+            popup.getMenu().add("Sửa");
+            popup.getMenu().add("Xoá");
+            popup.setOnMenuItemClickListener(itemMenu -> {
+                if (itemMenu.getTitle().equals("Sửa")) {
+                    actionListener.onEdit(item);
+                    return true;
+                } else if (itemMenu.getTitle().equals("Xoá")) {
+                    actionListener.onDelete(item);
+                    return true;
+                }
+                return false;
+            });
+            popup.show();
+            return true;
+        });
     }
 
     @Override

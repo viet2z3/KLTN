@@ -50,6 +50,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15sp"
                 android:background="@drawable/card_gradient"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -99,37 +100,13 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="6dp"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardPreventCornerOverlap="false">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/card_gradient"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="Select Class"
-                    android:textColor="#1E293B"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <Spinner
-                    android:id="@+id/spinnerClass"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:background="@drawable/spinner_bg"
-                    android:entries="@array/class_options" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            app:cardPreventCornerOverlap="false"/>
 
         <!-- Menu Items -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="22sp"
             android:orientation="vertical">
 
             <!-- Item: Manage Students -->
@@ -153,26 +130,6 @@
                     layout="@layout/item_dashboard_menu" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Item: Assign Lessons -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="@drawable/ripple_effect"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardPreventCornerOverlap="false">
-
-                <include
-                    android:id="@+id/itemAssignLessons"
-                    app:icon="@drawable/tc_asign"
-                    app:subtitle="Assign lessons to your students"
-                    app:title="Assign Lessons"
-                    layout="@layout/item_dashboard_menu" />
-            </androidx.cardview.widget.CardView>
 
             <!-- Item: View Progress -->
             <androidx.cardview.widget.CardView

@@ -4,31 +4,43 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.kltn.R;
 import com.example.kltn.models.Student;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
-
+import java.util.Map;
 
 public class EvaluateStudentActivity extends AppCompatActivity {
 
     private TextView tvEvaluationDate;
-    private Spinner spinnerSubject;
-    private String selectedSubject;
-    private Spinner spinnerStudentName;
     private TextView tvStudentClass;
-    private List<Student> studentList;
-    private Student selectedStudent;
+    private TextView tvStudentName;
+    private ImageView ivStudentAvatar;
+    private RatingBar ratingParticipation, ratingUnderstanding, ratingProgress;
+    private TextView tvOverallRating;
+    private EditText etComments, etScore;
+    private Button btnSaveEvaluation;
+
+    private String userId, studentName, classId, avatarUrl, teacherId;
+    private float overallRating = 0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,17 +49,43 @@ public class EvaluateStudentActivity extends AppCompatActivity {
 
         // Initialize views
         tvEvaluationDate = findViewById(R.id.tvEvaluationDate);
-        spinnerSubject = findViewById(R.id.spinnerSubject);
-        spinnerStudentName = findViewById(R.id.spinnerStudentName);
         tvStudentClass = findViewById(R.id.tvStudentClass);
+        tvStudentName = findViewById(R.id.tvStudentName);
+        ivStudentAvatar = findViewById(R.id.ivStudentAvatar);
+        ratingParticipation = findViewById(R.id.ratingParticipation);
+        ratingUnderstanding = findViewById(R.id.ratingUnderstanding);
+        ratingProgress = findViewById(R.id.ratingProgress);
+        tvOverallRating = findViewById(R.id.tvOverallRating);
+        etComments = findViewById(R.id.etComments);
+        etScore = findViewById(R.id.etScore);
+        btnSaveEvaluation = findViewById(R.id.btnSaveEvaluation);
 
-        // Set current date
+        // Get student info from intent
+        userId = getIntent().getStringExtra("user_id");
+        studentName = getIntent().getStringExtra("student_name");
+        String className = getIntent().getStringExtra("class_name");
+        avatarUrl = getIntent().getStringExtra("avatar_url");
+        String avatarBase64 = getIntent().getStringExtra("avatar_base64");
+        teacherId = getIntent().getStringExtra("teacher_id");
+
+        tvStudentName.setText(studentName != null ? studentName : "");
+        tvStudentClass.setText(className != null ? className : "");
+        if (avatarBase64 != null && !avatarBase64.isEmpty()) {
+            try {
+                byte[] decodedString = android.util.Base64.decode(avatarBase64, android.util.Base64.DEFAULT);
+                android.graphics.Bitmap decodedByte = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                Glide.with(this).load(decodedByte).placeholder(R.drawable.user).circleCrop().into(ivStudentAvatar);
+            } catch (Exception e) {
+                ivStudentAvatar.setImageResource(R.drawable.user);
+            }
+        } else if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            Glide.with(this).load(avatarUrl).placeholder(R.drawable.user).circleCrop().into(ivStudentAvatar);
+        } else {
+            ivStudentAvatar.setImageResource(R.drawable.user);
+        }
         setCurrentDate();
-        
-        // Setup spinner
-        setupSpinner();
-        loadSampleStudents();
-        setupStudentSpinner();
+        setupRatingListeners();
+        btnSaveEvaluation.setOnClickListener(v -> saveEvaluation());
     }
 
     private void setCurrentDate() {
@@ -56,102 +94,56 @@ public class EvaluateStudentActivity extends AppCompatActivity {
         tvEvaluationDate.setText(currentDate);
     }
 
-    private void setupSpinner() {
-        // Create array of subjects
-        String[] subjects = {
-            "Select Subject",
-            "Mathematics",
-            "English",
-            "Science",
-            "History",
-            "Geography",
-            "Literature",
-            "Physics",
-            "Chemistry",
-            "Biology",
-            "Computer Science",
-            "Art",
-            "Music",
-            "Physical Education"
-        };
-
-        // Create adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-            this,
-            R.layout.spinner_item,
-            subjects
-        );
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-
-        // Set adapter to spinner
-        spinnerSubject.setAdapter(adapter);
-
-        // Set default selection
-        spinnerSubject.setSelection(0);
-
-        // Set item selected listener
-        spinnerSubject.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedSubject = subjects[position];
-                if (position > 0) { // Not "Select Subject"
-                    Toast.makeText(EvaluateStudentActivity.this, 
-                        "Selected: " + selectedSubject, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                selectedSubject = "";
-            }
-        });
+    private void setupRatingListeners() {
+        RatingBar.OnRatingBarChangeListener listener = (ratingBar, rating, fromUser) -> updateOverallRating();
+        ratingParticipation.setOnRatingBarChangeListener(listener);
+        ratingUnderstanding.setOnRatingBarChangeListener(listener);
+        ratingProgress.setOnRatingBarChangeListener(listener);
     }
 
-    private void loadSampleStudents() {
-        studentList = new ArrayList<>();
-        studentList.add(new Student("Lucas Bennett", 7, "lucas.b@example.com", "", "Grade 2", 85, 75, true));
-        studentList.add(new Student("Olivia Carter", 8, "olivia.c@example.com", "", "Grade 3", 92, 80, true));
-        studentList.add(new Student("Noah Davis", 6, "noah.d@example.com", "", "Grade 1", 78, 65, true));
-        studentList.add(new Student("Isabella Evans", 9, "isabella.e@example.com", "", "Grade 4", 88, 85, true));
-        studentList.add(new Student("Ethan Foster", 7, "ethan.f@example.com", "", "Grade 2", 90, 78, true));
-        studentList.add(new Student("Sophia Green", 8, "sophia.g@example.com", "", "Grade 3", 87, 82, true));
+    private void updateOverallRating() {
+        float participation = ratingParticipation.getRating();
+        float understanding = ratingUnderstanding.getRating();
+        float progress = ratingProgress.getRating();
+        overallRating = (participation + understanding + progress) / 3f;
+        // Làm tròn 1 số sau dấu phẩy
+        overallRating = (float) (Math.floor(overallRating * 10) / 10.0);
+        tvOverallRating.setText(String.format(Locale.getDefault(), "%.1f", overallRating));
     }
 
-    private void setupStudentSpinner() {
-        List<String> studentNames = new ArrayList<>();
-        studentNames.add("Select Students");
-        for (Student s : studentList) {
-            studentNames.add(s.getName());
+    private void saveEvaluation() {
+        String comments = etComments.getText().toString().trim();
+        String scoreStr = etScore.getText().toString().trim();
+        int score = 0;
+        try {
+            score = Integer.parseInt(scoreStr);
+        } catch (Exception ignored) {}
+        String evaluationDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        if (userId == null || teacherId == null) {
+            Toast.makeText(this, "Missing student or teacher info", Toast.LENGTH_SHORT).show();
+            return;
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-            this,
-            R.layout.spinner_item,
-            studentNames
-        );
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spinnerStudentName.setAdapter(adapter);
-        spinnerStudentName.setSelection(0);
-        spinnerStudentName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    selectedStudent = null;
-                    tvStudentClass.setText("");
-                } else {
-                    selectedStudent = studentList.get(position - 1);
-                    tvStudentClass.setText(selectedStudent.getClassName());
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                selectedStudent = null;
-                tvStudentClass.setText("");
-            }
-        });
+        float ratingParticipationValue = ratingParticipation.getRating();
+        float ratingUnderstandingValue = ratingUnderstanding.getRating();
+        float ratingProgressValue = ratingProgress.getRating();
+        float roundedOverall = Math.round(overallRating * 10f) / 10f;
+        Map<String, Object> data = new HashMap<>();
+        data.put("evaluation_date", evaluationDate);
+        data.put("overall_rating", roundedOverall);
+        data.put("teacher_id", teacherId);
+        data.put("comments", comments);
+        data.put("score", score);
+        data.put("rating_participation", ratingParticipationValue);
+        data.put("rating_understanding", ratingUnderstandingValue);
+        data.put("rating_progress", ratingProgressValue);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+            .collection("evaluations")
+            .add(data)
+            .addOnSuccessListener(ref -> {
+                Toast.makeText(this, "Evaluation saved", Toast.LENGTH_SHORT).show();
+                finish(); // Quay lại màn trước (danh sách học viên)
+            })
+            .addOnFailureListener(e -> Toast.makeText(this, "Save failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
-
-    // Method to get selected subject
-    public String getSelectedSubject() {
-        return selectedSubject;
-    }
-} 
+}

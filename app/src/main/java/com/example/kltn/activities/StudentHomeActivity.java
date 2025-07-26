@@ -47,7 +47,7 @@ public class StudentHomeActivity extends AppCompatActivity {
         // Initialize views
         initViews();
 
-        // Lấy avatar và tên từ Firestore
+        // Lấy avatar, tên và kiểm tra class/course từ Firestore
         FirebaseFirestore.getInstance().collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String fullName = documentSnapshot.getString("full_name");
@@ -62,11 +62,45 @@ public class StudentHomeActivity extends AppCompatActivity {
                 } else {
                     ivAvatar.setImageResource(R.drawable.user);
                 }
+
+                // Check class/course
+                boolean hasClass = false;
+                Object classIdsObj = documentSnapshot.get("class_ids");
+                if (classIdsObj instanceof java.util.List && !((java.util.List<?>) classIdsObj).isEmpty()) {
+                    hasClass = true;
+                } else if (documentSnapshot.contains("class_id")) {
+                    String classId = documentSnapshot.getString("class_id");
+                    if (classId != null && !classId.isEmpty()) hasClass = true;
+                }
+                if (!hasClass) {
+                    // Ẩn hết chức năng
+                    imgFlashCard.setVisibility(View.GONE);
+                    imgBaitap.setVisibility(View.GONE);
+                    imgTest.setVisibility(View.GONE);
+                    imgVideo.setVisibility(View.GONE);
+                    imgBadge.setVisibility(View.GONE);
+                    imgProgress.setVisibility(View.GONE);
+                    imgStreak.setVisibility(View.GONE);
+                    // Show dialog đẹp
+                    showNoClassDialog();
+                }
             }
         });
 
+
+
         // Setup BottomNavigationView
         setupBottomNavigation();
+    }
+
+    private void showNoClassDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_no_class, null);
+        builder.setView(dialogView);
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialogView.findViewById(R.id.btnContactCenter).setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
     private void initViews() {

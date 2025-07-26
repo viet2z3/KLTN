@@ -42,7 +42,7 @@ public class FillBlankAdapter extends RecyclerView.Adapter<FillBlankAdapter.VH> 
     public void onBindViewHolder(@NonNull VH holder, int position) {
         Question q = questions.get(position);
 
-        holder.tvQ.setText(q.question);
+        holder.tvQ.setText(q.getContent());
         holder.etAns.setText("");
         holder.tvFeedback.setVisibility(View.GONE);
         holder.btnSubmit.setEnabled(true);
@@ -53,14 +53,14 @@ public class FillBlankAdapter extends RecyclerView.Adapter<FillBlankAdapter.VH> 
                 holder.tvFeedback.setText("Vui lòng nhập đáp án!");
                 holder.tvFeedback.setTextColor(0xFFD32F2F); // đỏ
                 holder.tvFeedback.setVisibility(View.VISIBLE);
-            } else if (ans.equalsIgnoreCase(q.answer)) {
+            } else if (ans.equalsIgnoreCase(q.getCorrect_answer())) {
                 holder.tvFeedback.setText("Chính xác!");
                 holder.tvFeedback.setTextColor(0xFF388E3C); // xanh
                 holder.tvFeedback.setVisibility(View.VISIBLE);
                 holder.btnSubmit.setEnabled(false);
                 holder.etAns.setEnabled(false);
             } else {
-                holder.tvFeedback.setText("Sai! Đáp án đúng: " + q.answer);
+                holder.tvFeedback.setText("Sai! Đáp án đúng: " + q.getCorrect_answer());
                 holder.tvFeedback.setTextColor(0xFFD32F2F);
                 holder.tvFeedback.setVisibility(View.VISIBLE);
                 holder.btnSubmit.setEnabled(false);

@@ -120,6 +120,10 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activities.QuestionBankActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activities.SystemReportsActivity"
             android:exported="false"
             android:screenOrientation="portrait" /> <!-- Common Activities -->
@@ -137,6 +141,12 @@
         <activity
             android:name=".activities.CourseDetailActivity" />
         <activity android:name=".activities.ClassDetailActivity" />
+        <activity
+            android:name=".activities.FlashcardDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.StudentListForProgressActivity" />
+        <activity android:name=".activities.StudentListForEvaluationActivity" />
     </application>
 
 </manifest>

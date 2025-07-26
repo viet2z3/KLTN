@@ -20,6 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ProfileDetail extends AppCompatActivity {
 
@@ -44,6 +47,7 @@ public class ProfileDetail extends AppCompatActivity {
         TextView tvChangePhoto = findViewById(R.id.tvChangePhoto);
         ImageView imgAvatar = findViewById(R.id.imgAvatar);
         TextView tvName = findViewById(R.id.tvName);
+        View itemCourseName = findViewById(R.id.itemCourseName);
 
         // Lấy thông tin user từ Firestore
         db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
@@ -62,21 +66,126 @@ public class ProfileDetail extends AppCompatActivity {
 
                 // Xử lý class, level, teacher chỉ cho student
                 if ("student".equalsIgnoreCase(role)) {
-                    String className = documentSnapshot.getString("class_name");
-                    String level = documentSnapshot.getString("level");
-                    String teacherName = documentSnapshot.getString("teacher_name");
-
-                    setProfileInfo(itemClassName, "Class", (className != null && !className.isEmpty()) ? className : "Chưa được phân lớp");
-                    setProfileInfo(itemLevel, "Level", (level != null && !level.isEmpty()) ? level : "Chưa được phân lớp");
-                    setProfileInfo(itemTeacher, "Teacher", (teacherName != null && !teacherName.isEmpty()) ? teacherName : "Chưa được phân lớp");
-
-                    itemClassName.setVisibility(View.VISIBLE);
-                    itemLevel.setVisibility(View.VISIBLE);
-                    itemTeacher.setVisibility(View.VISIBLE);
-                } else {
+                    // Ẩn hết trước
+                    itemCourseName.setVisibility(View.GONE);
                     itemClassName.setVisibility(View.GONE);
-                    itemLevel.setVisibility(View.GONE);
                     itemTeacher.setVisibility(View.GONE);
+                    itemLevel.setVisibility(View.GONE);
+
+                    // Lấy class_id từ user
+                    String classId = null;
+                    Object classIdsObj = documentSnapshot.get("class_ids");
+                    if (classIdsObj instanceof List && !((List<?>) classIdsObj).isEmpty()) {
+                        classId = (String) ((List<?>) classIdsObj).get(0);
+                    } else if (documentSnapshot.contains("class_id")) {
+                        classId = documentSnapshot.getString("class_id");
+                    }
+                    if (classId != null && !classId.isEmpty()) {
+                        FirebaseFirestore.getInstance().collection("classes").document(classId).get().addOnSuccessListener(classDoc -> {
+                            String className = classDoc.getString("name");
+                            String courseId = classDoc.getString("course_id");
+                            String teacherId = classDoc.getString("teacher_id");
+                            // Hiển thị tên lớp
+                            setProfileInfo(itemClassName, "Class", className != null ? className : "N/A");
+                            itemClassName.setVisibility(View.VISIBLE);
+                            // Lấy tên khoá học
+                            if (courseId != null && !courseId.isEmpty()) {
+                                FirebaseFirestore.getInstance().collection("courses").document(courseId).get().addOnSuccessListener(courseDoc -> {
+                                    String courseName = courseDoc.getString("name");
+                                    setProfileInfo(itemCourseName, "Course", courseName != null ? courseName : "N/A");
+                                    itemCourseName.setVisibility(View.VISIBLE);
+                                });
+                            } else {
+                                setProfileInfo(itemCourseName, "Course", "N/A");
+                                itemCourseName.setVisibility(View.VISIBLE);
+                            }
+                            // Lấy tên giáo viên
+                            if (teacherId != null && !teacherId.isEmpty()) {
+                                FirebaseFirestore.getInstance().collection("users").document(teacherId).get().addOnSuccessListener(teacherDoc -> {
+                                    String teacherName = teacherDoc.getString("full_name");
+                                    setProfileInfo(itemTeacher, "Teacher", teacherName != null ? teacherName : "N/A");
+                                    itemTeacher.setVisibility(View.VISIBLE);
+                                });
+                            } else {
+                                setProfileInfo(itemTeacher, "Teacher", "N/A");
+                                itemTeacher.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    } else {
+                        setProfileInfo(itemClassName, "Class", "N/A");
+                        setProfileInfo(itemCourseName, "Course", "N/A");
+                        setProfileInfo(itemTeacher, "Teacher", "N/A");
+                        itemClassName.setVisibility(View.VISIBLE);
+                        itemCourseName.setVisibility(View.VISIBLE);
+                        itemTeacher.setVisibility(View.VISIBLE);
+                    }
+                } else if ("teacher".equalsIgnoreCase(role)) {
+                    // Hiển thị tên tất cả khoá học mà giáo viên quản lý (nếu có)
+                    List<String> classIds = (List<String>) documentSnapshot.get("class_ids");
+                    if (classIds != null && !classIds.isEmpty()) {
+                        Set<String> courseIdSet = new HashSet<>();
+                        Set<String> courseNameSet = new HashSet<>();
+                        final int[] loadedCount = {0};
+                        for (String classId : classIds) {
+                            db.collection("classes").document(classId).get().addOnSuccessListener(classDoc -> {
+                                if (classDoc.exists()) {
+                                    String courseId = classDoc.getString("course_id");
+                                    if (courseId != null && !courseId.isEmpty() && !courseIdSet.contains(courseId)) {
+                                        courseIdSet.add(courseId);
+                                        db.collection("courses").document(courseId).get().addOnSuccessListener(courseDoc -> {
+                                            String courseName = courseDoc.getString("name");
+                                            if (courseName != null && !courseName.isEmpty()) {
+                                                courseNameSet.add(courseName);
+                                            }
+                                            loadedCount[0]++;
+                                            if (loadedCount[0] == classIds.size()) {
+                                                // Đã load xong tất cả
+                                                if (!courseNameSet.isEmpty()) {
+                                                    String allCourses = String.join(", ", courseNameSet);
+                                                    setProfileInfo(itemCourseName, "Course(s)", allCourses);
+                                                    itemCourseName.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    setProfileInfo(itemCourseName, "Course(s)", "N/A");
+                                                    itemCourseName.setVisibility(View.VISIBLE);
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        loadedCount[0]++;
+                                        if (loadedCount[0] == classIds.size()) {
+                                            if (!courseNameSet.isEmpty()) {
+                                                String allCourses = String.join(", ", courseNameSet);
+                                                setProfileInfo(itemCourseName, "Course(s)", allCourses);
+                                                itemCourseName.setVisibility(View.VISIBLE);
+                                            } else {
+                                                setProfileInfo(itemCourseName, "Course(s)", "N/A");
+                                                itemCourseName.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    loadedCount[0]++;
+                                    if (loadedCount[0] == classIds.size()) {
+                                        if (!courseNameSet.isEmpty()) {
+                                            String allCourses = String.join(", ", courseNameSet);
+                                            setProfileInfo(itemCourseName, "Course(s)", allCourses);
+                                            itemCourseName.setVisibility(View.VISIBLE);
+                                        } else {
+                                            setProfileInfo(itemCourseName, "Course(s)", "N/A");
+                                            itemCourseName.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        itemClassName.setVisibility(View.GONE);
+                        itemLevel.setVisibility(View.GONE);
+                        itemTeacher.setVisibility(View.GONE);
+                    } else {
+                        itemCourseName.setVisibility(View.GONE);
+                    }
+                } else {
+                    itemCourseName.setVisibility(View.GONE);
                 }
 
                 tvName.setText(fullName);

@@ -331,5 +331,5 @@
     <string name="assign_lesson_select_content">Select Content</string>
     <string name="assign_lesson_select_students">Select Students/Classes</string>
     <string name="assign_lesson_select_date">Select Date</string>
-    <string name="assign_lesson_assign_lesson">Assign Lesson</string>
+    <string name="assign_lesson_assign_lesson">Assign Video</string>
 </resources>

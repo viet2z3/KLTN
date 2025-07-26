@@ -49,25 +49,41 @@ public class VideoLecturesActivity extends AppCompatActivity {
     }
     private void loadVideosFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("video_lectures").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            videos.clear();
-            allVideos.clear();
-            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                VideoLesson v = new VideoLesson();
-                v.id = doc.getId();
-                v.title = doc.getString("title");
-                v.description = doc.getString("description");
-                v.duration = doc.getString("duration");
-                v.topic = doc.getString("topic");
-                v.thumbnailUrl = doc.getString("thumbnail_url");
-                v.videoUrl = doc.getString("video_url");
-                v.teacherId = doc.getString("teacher_id");
-                allVideos.add(v);
+        String userId = getIntent().getStringExtra("user_id");
+        if (userId == null) return;
+        db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+            String classId = null;
+            Object classIdsObj = userDoc.get("class_ids");
+            if (classIdsObj instanceof java.util.List && !((java.util.List<?>) classIdsObj).isEmpty()) {
+                classId = (String) ((java.util.List<?>) classIdsObj).get(0);
+            } else {
+                classId = userDoc.getString("class_id");
             }
-            // Sắp xếp theo số thứ tự bài học trong title (Lesson 1, Lesson 2, ...)
-            java.util.Collections.sort(allVideos, (v1, v2) -> Integer.compare(extractLessonNumber(v1.title), extractLessonNumber(v2.title)));
-            videos.addAll(allVideos);
-            adapter.notifyDataSetChanged();
+            if (classId == null || classId.isEmpty()) return;
+            db.collection("classes").document(classId).get().addOnSuccessListener(classDoc -> {
+                String courseId = classDoc.getString("course_id");
+                if (courseId == null || courseId.isEmpty()) return;
+                db.collection("video_lectures").whereEqualTo("course_id", courseId).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                    videos.clear();
+                    allVideos.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        VideoLesson v = new VideoLesson();
+                        v.id = doc.getId();
+                        v.title = doc.getString("title");
+                        v.description = doc.getString("description");
+                        v.duration = doc.getString("duration");
+                        v.topic = doc.getString("topic");
+                        v.thumbnailUrl = doc.getString("thumbnail_url");
+                        v.videoUrl = doc.getString("video_url");
+                        v.teacherId = doc.getString("teacher_id");
+                        allVideos.add(v);
+                    }
+                    // Sắp xếp theo số thứ tự bài học trong title (Lesson 1, Lesson 2, ...)
+                    java.util.Collections.sort(allVideos, (v1, v2) -> Integer.compare(extractLessonNumber(v1.title), extractLessonNumber(v2.title)));
+                    videos.addAll(allVideos);
+                    adapter.notifyDataSetChanged();
+                });
+            });
         });
     }
     private void filterVideos(String query) {

@@ -11,4 +11,13 @@
         android:layout_height="match_parent"
         android:padding="8dp" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_plus"
+        android:contentDescription="Add Test" />
+
 </LinearLayout> 

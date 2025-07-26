@@ -31,19 +31,35 @@ public class TestChoiceActivity extends AppCompatActivity {
         });
         rv.setAdapter(adapter);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("tests").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            tests.clear();
-            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                String id = doc.getId();
-                String title = doc.getString("title");
-                int duration = doc.getLong("duration") != null ? doc.getLong("duration").intValue() : 0;
-                int maxScore = doc.getLong("max_score") != null ? doc.getLong("max_score").intValue() : 0;
-                String exerciseId = doc.getString("exercise_id");
-                List<?> questions = (List<?>) doc.get("questions");
-                int questionCount = questions != null ? questions.size() : 0;
-                tests.add(new TestSet(id, title, duration, maxScore, exerciseId, questionCount));
+        String userId = getIntent().getStringExtra("user_id");
+        if (userId == null) return;
+        db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+            String classId = null;
+            Object classIdsObj = userDoc.get("class_ids");
+            if (classIdsObj instanceof java.util.List && !((java.util.List<?>) classIdsObj).isEmpty()) {
+                classId = (String) ((java.util.List<?>) classIdsObj).get(0);
+            } else {
+                classId = userDoc.getString("class_id");
             }
-            adapter.notifyDataSetChanged();
+            if (classId == null || classId.isEmpty()) return;
+            db.collection("classes").document(classId).get().addOnSuccessListener(classDoc -> {
+                String courseId = classDoc.getString("course_id");
+                if (courseId == null || courseId.isEmpty()) return;
+                db.collection("tests").whereEqualTo("course_id", courseId).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                    tests.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String id = doc.getId();
+                        String title = doc.getString("title");
+                        int duration = doc.getLong("duration") != null ? doc.getLong("duration").intValue() : 0;
+                        int maxScore = doc.getLong("maxScore") != null ? doc.getLong("maxScore").intValue() : 0;
+                        String exerciseId = doc.getString("exercise_id");
+                        List<?> questions = (List<?>) doc.get("questions");
+                        int questionCount = questions != null ? questions.size() : 0;
+                        tests.add(new TestSet(id, title, duration, maxScore, exerciseId, questionCount));
+                    }
+                    adapter.notifyDataSetChanged();
+                });
+            });
         });
     }
-} 
+}

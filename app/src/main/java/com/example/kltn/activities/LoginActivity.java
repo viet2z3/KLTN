@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
 
+
     // UI Components
     private EditText etEmail, etPassword;
     private ProgressBar progressBar;
@@ -34,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
         initViews();
         setupClickListeners();
         setupBackPressHandler();
+
     }
 
 

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,42 +89,51 @@ public class FlashcardLearningActivity extends AppCompatActivity {
     private void setupTabs() { /* Đã thay bằng fetchFlashcardSets() */ }
 
     private void setupFlashcards() {
-        // Lấy set_id tương ứng với currentTopic
-        String setId = null;
-        for (String id : flashcardSetIds) {
-            if (setIdToTitle.get(id).equals(currentTopic)) {
-                setId = id;
-                break;
-            }
+    // Luôn map từ title sang document ID khi truy vấn Firestore
+    String docId = null;
+    for (String id : flashcardSetIds) {
+        if (setIdToTitle.get(id).equals(currentTopic)) {
+            docId = id;
+            break;
         }
-        if (setId == null) {
-            flashcards = new ArrayList<>();
-            displayCurrentCard();
-            return;
-        }
-        FirebaseFirestore.getInstance()
-                .collection("flashcard_sets").document(setId).collection("cards")
-                .orderBy("order")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    flashcards = new ArrayList<>();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                        String front = doc.getString("front_text");
-                        String back = doc.getString("back_text");
-                        String example = doc.getString("example_sentence");
-                        String imageUrl = doc.getString("image_url");
-                        flashcards.add(new Flashcard(front, back, example, imageUrl));
-                    }
-                    currentCardIndex = 0;
-                    isCardFlipped = false;
-                    displayCurrentCard();
-                })
-                .addOnFailureListener(e -> {
-                    flashcards = new ArrayList<>();
-                    Toast.makeText(this, "Không lấy được dữ liệu flashcard!", Toast.LENGTH_SHORT).show();
-                    displayCurrentCard();
-                });
     }
+    if (docId == null) {
+        flashcards = new ArrayList<>();
+        displayCurrentCard();
+        return;
+    }
+    FirebaseFirestore.getInstance()
+            .collection("flashcard_sets").document(docId).collection("cards")
+            .orderBy("order")
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                flashcards = new ArrayList<>();
+                for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                    String front = doc.getString("front_text");
+                    String back = doc.getString("back_text");
+                    String example = doc.getString("example_sentence");
+                    String imageUrl = doc.getString("image_url");
+                    flashcards.add(new Flashcard(doc.getId(), "", front, back, example, imageUrl, 0));
+                }
+                currentCardIndex = 0;
+                isCardFlipped = false;
+                LinearLayout flashcardMain = findViewById(R.id.flashcardMainContainer);
+                TextView tvEmpty = findViewById(R.id.tvEmptyFlashcardSet);
+                if (flashcards.isEmpty()) {
+                    flashcardMain.setVisibility(View.GONE);
+                    tvEmpty.setVisibility(View.VISIBLE);
+                } else {
+                    flashcardMain.setVisibility(View.VISIBLE);
+                    tvEmpty.setVisibility(View.GONE);
+                    displayCurrentCard();
+                }
+            })
+            .addOnFailureListener(e -> {
+                flashcards = new ArrayList<>();
+                Toast.makeText(this, "Không lấy được dữ liệu flashcard!", Toast.LENGTH_SHORT).show();
+                displayCurrentCard();
+            });
+}
 
     private void animateFlashcardChange() {
         AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
@@ -139,14 +149,14 @@ public class FlashcardLearningActivity extends AppCompatActivity {
         btnPlayWordAudio.setOnClickListener(v -> {
             if (flashcards != null && !flashcards.isEmpty()) {
                 Flashcard card = flashcards.get(currentCardIndex);
-                String textToSpeak = card.getWord();
+                String textToSpeak = card.getFrontText();
                 tts.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
             }
         });
         btnPlayExampleAudio.setOnClickListener(v -> {
             if (flashcards != null && !flashcards.isEmpty()) {
                 Flashcard card = flashcards.get(currentCardIndex);
-                String textToSpeak = card.getExample();
+                String textToSpeak = card.getExampleSentence();
                 tts.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
             }
         });
@@ -180,14 +190,14 @@ public class FlashcardLearningActivity extends AppCompatActivity {
         flashcardProgressBar.setProgress(progress);
         
         if (isCardFlipped) {
-            tvFlashcardText.setText(card.getDefinition());
+            tvFlashcardText.setText(card.getBackText());
             tvFlashcardHint.setText("Tap image to see word");
             tvFlashcardHint.setTextSize(20);
             tvFlashcardExample.setVisibility(View.VISIBLE);
-            tvFlashcardExample.setText(card.getExample());
+            tvFlashcardExample.setText(card.getExampleSentence());
             btnPlayExampleAudio.setVisibility(View.VISIBLE);
         } else {
-            tvFlashcardText.setText(card.getWord());
+            tvFlashcardText.setText(card.getFrontText());
             tvFlashcardHint.setText("Tap image to reveal answer");
             tvFlashcardHint.setTextSize(20);
             tvFlashcardExample.setVisibility(View.GONE);
@@ -227,31 +237,7 @@ public class FlashcardLearningActivity extends AppCompatActivity {
         }
     }
 
-    private void updateNavigationButtons() {
-        // btnPrevious.setEnabled(currentCardIndex > 0); // Nếu có nút điều hướng thì xử lý riêng
-        // btnNext.setEnabled(currentCardIndex < flashcards.size() - 1); // Nếu có nút điều hướng thì xử lý riêng
-    }
 
-    private void updateDifficultyButtons() {
-        // Only show difficulty buttons when card is flipped
-        boolean showDifficulty = isCardFlipped;
-        // btnEasy.setVisibility(showDifficulty ? View.VISIBLE : View.GONE); // Nếu có nút đánh giá thì xử lý riêng
-        // btnMedium.setVisibility(showDifficulty ? View.VISIBLE : View.GONE); // Nếu có nút đánh giá thì xử lý riêng
-        // btnHard.setVisibility(showDifficulty ? View.VISIBLE : View.GONE); // Nếu có nút đánh giá thì xử lý riêng
-    }
-
-    private void rateDifficulty(String difficulty) {
-        Flashcard currentCard = flashcards.get(currentCardIndex);
-        String message = String.format("Marked '%s' as %s", currentCard.getWord(), difficulty);
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        
-        // Auto-advance to next card after rating
-        if (currentCardIndex < flashcards.size() - 1) {
-            showNextCard();
-        } else {
-            showLearningComplete();
-        }
-    }
 
     private void showLearningComplete() {
         Toast.makeText(this, "Congratulations! You've completed all flashcards!", Toast.LENGTH_LONG).show();
@@ -314,25 +300,50 @@ public class FlashcardLearningActivity extends AppCompatActivity {
     }
 
     private void fetchFlashcardSets() {
-        FirebaseFirestore.getInstance().collection("flashcard_sets").get()
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+    if (!userDoc.exists()) return;
+    String classId = null;
+    Object classIdsObj = userDoc.get("class_ids");
+    if (classIdsObj instanceof java.util.List && !((java.util.List<?>) classIdsObj).isEmpty()) {
+        classId = (String) ((java.util.List<?>) classIdsObj).get(0);
+    } else if (userDoc.contains("class_id")) {
+        classId = userDoc.getString("class_id");
+    }
+    if (classId == null || classId.isEmpty()) {
+        Toast.makeText(this, "Không tìm thấy lớp học của bạn!", Toast.LENGTH_SHORT).show();
+        return;
+    }
+    db.collection("classes").document(classId).get().addOnSuccessListener(classDoc -> {
+        if (!classDoc.exists()) {
+            Toast.makeText(this, "Không tìm thấy thông tin lớp học!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String courseId = classDoc.getString("course_id");
+        if (courseId == null || courseId.isEmpty()) {
+            Toast.makeText(this, "Không tìm thấy khoá học của bạn!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        db.collection("flashcard_sets").whereEqualTo("course_id", courseId).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     flashcardSetIds.clear();
                     setIdToTitle.clear();
                     tabLayout.removeAllTabs();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                        String setId = doc.getString("set_id");
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String docId = doc.getId(); // Lấy document ID thực sự
                         String title = doc.getString("title");
-                        if (setId != null && title != null) {
-                            flashcardSetIds.add(setId);
-                            setIdToTitle.put(setId, title);
+                        if (docId != null && title != null) {
+                            flashcardSetIds.add(docId);
+                            setIdToTitle.put(docId, title);
                             tabLayout.addTab(tabLayout.newTab().setText(title));
                         }
                     }
-                    // Chọn tab đầu tiên nếu có
                     if (!flashcardSetIds.isEmpty()) {
                         currentTopic = setIdToTitle.get(flashcardSetIds.get(0));
                         tabLayout.selectTab(tabLayout.getTabAt(0));
-                        setupFlashcards();
+                        setupFlashcards(); // sẽ luôn map từ title sang documentId
+                        // Kiểm tra nếu bộ flashcard không có dữ liệu thì ẩn UI bên dưới
+                        // (Xử lý này nằm trong setupFlashcards, nhưng đảm bảo luôn gọi đúng)
                     }
                     tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                         @Override
@@ -349,14 +360,13 @@ public class FlashcardLearningActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onTabUnselected(TabLayout.Tab tab) {
-                        }
-
+                        public void onTabUnselected(TabLayout.Tab tab) {}
                         @Override
-                        public void onTabReselected(TabLayout.Tab tab) {
-                        }
+                        public void onTabReselected(TabLayout.Tab tab) {}
                     });
                 });
+    });
+});
     }
 
     @Override

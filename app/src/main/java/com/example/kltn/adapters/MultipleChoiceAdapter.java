@@ -40,13 +40,13 @@ public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAd
     public void onBindViewHolder(@NonNull VH holder, int position) {
         Question q = questions.get(position);
 
-        holder.tvQ.setText(q.question);
+        holder.tvQ.setText(q.getContent());
         holder.rg.clearCheck();
         holder.tvFeedback.setVisibility(View.GONE);
         holder.btnSubmit.setEnabled(true);
         for (int i = 0; i < 4; i++) {
             RadioButton rb = holder.rb[i];
-            rb.setText(q.choices.get(i));
+            rb.setText(q.getOptions().get(i));
             rb.setChecked(false);
             rb.setEnabled(true);
         }
@@ -60,14 +60,14 @@ public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAd
             } else {
                 RadioButton rb = holder.itemView.findViewById(checkedId);
                 String ans = rb.getText().toString().trim();
-                if (ans.equalsIgnoreCase(q.answer)) {
+                if (ans.equalsIgnoreCase(q.getCorrect_answer())) {
                     holder.tvFeedback.setText("Chính xác!");
                     holder.tvFeedback.setTextColor(0xFF388E3C);
                     holder.tvFeedback.setVisibility(View.VISIBLE);
                     holder.btnSubmit.setEnabled(false);
                     for (int i = 0; i < 4; i++) holder.rb[i].setEnabled(false);
                 } else {
-                    holder.tvFeedback.setText("Sai! Đáp án đúng: " + q.answer);
+                    holder.tvFeedback.setText("Sai! Đáp án đúng: " + q.getCorrect_answer());
                     holder.tvFeedback.setTextColor(0xFFD32F2F);
                     holder.tvFeedback.setVisibility(View.VISIBLE);
                     holder.btnSubmit.setEnabled(false);
@@ -124,4 +124,4 @@ public class MultipleChoiceAdapter extends RecyclerView.Adapter<MultipleChoiceAd
                 .update("learningHistory", history);
         });
     }
-} 
+}

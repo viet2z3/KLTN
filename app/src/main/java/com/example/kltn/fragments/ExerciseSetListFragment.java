@@ -22,14 +22,17 @@ import java.util.List;
 public class ExerciseSetListFragment extends Fragment {
     private static final String ARG_TYPE = "type";
     private static final String ARG_USER_ID = "user_id";
+    private static final String ARG_COURSE_ID = "course_id";
     private String type;
     private String userId;
+    private String courseId;
 
-    public static ExerciseSetListFragment newInstance(String type, String userId) {
+    public static ExerciseSetListFragment newInstance(String type, String userId, String courseId) {
         ExerciseSetListFragment fragment = new ExerciseSetListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
         args.putString(ARG_USER_ID, userId);
+        args.putString(ARG_COURSE_ID, courseId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -40,6 +43,7 @@ public class ExerciseSetListFragment extends Fragment {
         if (getArguments() != null) {
             type = getArguments().getString(ARG_TYPE);
             userId = getArguments().getString(ARG_USER_ID);
+            courseId = getArguments().getString(ARG_COURSE_ID);
         }
     }
 
@@ -63,6 +67,7 @@ public class ExerciseSetListFragment extends Fragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("exercises")
                 .whereEqualTo("type", type)
+                .whereEqualTo("course_id", courseId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     sets.clear();
@@ -77,4 +82,4 @@ public class ExerciseSetListFragment extends Fragment {
                 });
         return v;
     }
-} 
+}
