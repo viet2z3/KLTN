@@ -49,6 +49,7 @@
 
         <!-- Name, Change Picture, Email -->
         <TextView
+            android:id="@+id/tvDisplayName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ethan Carter"
@@ -59,6 +60,7 @@
             android:gravity="center" />
 
         <TextView
+            android:id="@+id/tvChangePicture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Change profile picture"
@@ -67,6 +69,7 @@
             android:gravity="center" />
 
         <TextView
+            android:id="@+id/tvDisplayEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ethan.carter@email.com"
@@ -90,6 +93,7 @@
                 android:textStyle="bold" />
 
             <EditText
+                android:id="@+id/editTextName"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:background="@drawable/tl12bl12be8edf2"
@@ -115,6 +119,7 @@
                 android:textStyle="bold" />
 
             <Spinner
+                android:id="@+id/spinnerGender"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:background="@drawable/tl12bl12be8edf2"
@@ -138,6 +143,7 @@
                 android:textStyle="bold" />
 
             <EditText
+                android:id="@+id/editTextEmail"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:background="@drawable/tl12bl12be8edf2"
@@ -156,6 +162,7 @@
             android:gravity="center_vertical">
 
             <Button
+                android:id="@+id/btnCancel"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
@@ -166,6 +173,7 @@
                 android:layout_marginEnd="8dp" />
 
             <Button
+                android:id="@+id/btnSave"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"

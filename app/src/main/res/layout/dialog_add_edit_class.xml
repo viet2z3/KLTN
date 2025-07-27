@@ -3,38 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:background="@drawable/rounded_background">
+    android:padding="24dp">
 
     <TextView
         android:id="@+id/tv_dialog_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add New Class"
-        android:textColor="#101518"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="20dp"
-        android:gravity="center" />
-
-    <!-- Class Name -->
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Class Name"
-        android:textColor="#101518"
-        android:textSize="14sp"
+        android:text="Add/Edit Class"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="8dp" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp" />
 
     <EditText
         android:id="@+id/et_class_name"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/edit_text_background"
-        android:hint="Enter class name"
+        android:hint="Class name"
         android:textColor="#101518"
         android:textColorHint="#5C748A"
         android:textSize="16sp"
@@ -43,25 +29,14 @@
         android:paddingEnd="16dp"
         android:inputType="text"
         android:maxLines="1"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Description -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Description"
-        android:textColor="#101518"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="12dp" />
 
     <EditText
         android:id="@+id/et_description"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/edit_text_background"
-        android:hint="Enter class description"
+        android:hint="Description"
         android:textColor="#101518"
         android:textColorHint="#5C748A"
         android:textSize="16sp"
@@ -70,25 +45,14 @@
         android:paddingEnd="16dp"
         android:inputType="text"
         android:maxLines="1"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Capacity -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Capacity"
-        android:textColor="#101518"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="12dp" />
 
     <EditText
         android:id="@+id/et_capacity"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/edit_text_background"
-        android:hint="Enter maximum capacity"
+        android:hint="Capacity"
         android:textColor="#101518"
         android:textColorHint="#5C748A"
         android:textSize="16sp"
@@ -97,65 +61,61 @@
         android:paddingEnd="16dp"
         android:inputType="number"
         android:maxLines="1"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="12dp" />
 
-    <!-- Teacher Name -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Teacher Name"
+        android:text="Teacher"
         android:textColor="#101518"
         android:textSize="14sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="4dp" />
 
-    <EditText
-        android:id="@+id/et_teacher_name"
+    <Spinner
+        android:id="@+id/sp_teacher"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@drawable/edit_text_background"
-        android:hint="Enter teacher name"
-        android:textColor="#101518"
-        android:textColorHint="#5C748A"
-        android:textSize="16sp"
-        android:fontFamily="sans-serif"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:inputType="text"
-        android:maxLines="1"
-        android:layout_marginBottom="20dp" />
+        android:background="@drawable/spinner_bg"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Buttons -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Course"
+        android:textColor="#101518"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="4dp" />
+
+    <Spinner
+        android:id="@+id/sp_course"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/spinner_bg"
+        android:layout_marginBottom="24dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="end">
-
         <Button
             android:id="@+id/btn_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="#5C748A"
-            android:textSize="14sp"
-            android:fontFamily="sans-serif-medium"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="12dp"
+            android:textColor="#2196F3"
+            android:background="@android:color/transparent"
             android:layout_marginEnd="16dp" />
-
         <Button
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save"
-            android:textColor="#2196F3"
-            android:textSize="14sp"
-            android:fontFamily="sans-serif-medium"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="12dp" />
-
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_primary" />
     </LinearLayout>
-
 </LinearLayout> 

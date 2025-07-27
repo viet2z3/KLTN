@@ -1,17 +1,16 @@
 package com.example.kltn.models;
+import java.util.List;
 
 public class TestQuestion {
-    private String question;
-    private String[] options;
-    private int correctAnswer;
+    public String type; // "fill_blank" hoặc "multiple_choice"
+    public String question;
+    public List<String> choices; // null nếu là fill_blank
+    public String answer;
 
-    public TestQuestion(String question, String[] options, int correctAnswer) {
+    public TestQuestion(String type, String question, List<String> choices, String answer) {
+        this.type = type;
         this.question = question;
-        this.options = options;
-        this.correctAnswer = correctAnswer;
+        this.choices = choices;
+        this.answer = answer;
     }
-
-    public String getQuestion() { return question; }
-    public String[] getOptions() { return options; }
-    public int getCorrectAnswer() { return correctAnswer; }
 } 

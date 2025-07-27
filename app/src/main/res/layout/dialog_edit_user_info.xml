@@ -104,28 +104,6 @@
             android:layout_marginBottom="16dp" />
 
         <!-- Phone Input -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone Number"
-            android:textColor="@color/design_text_primary"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <EditText
-            android:id="@+id/et_edit_user_phone"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Enter phone number"
-            android:textColor="@color/design_text_primary"
-            android:textColorHint="@color/text_secondary"
-            android:background="@drawable/edit_text_background"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="16sp"
-            android:inputType="phone"
-            android:layout_marginBottom="16dp" />
 
         <!-- Password Input -->
         <TextView
@@ -148,8 +126,26 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textSize="16sp"
-            android:inputType="textPassword"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="16dp" />
+
+        <!-- Gender Selection -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gender"
+            android:textColor="@color/design_text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/spinner_gender"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/edit_text_background"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="16dp" />
 
         <!-- Buttons -->
         <LinearLayout

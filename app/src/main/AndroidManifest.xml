@@ -15,16 +15,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KLTN">
         <activity
+            android:name=".activities.ManageCoursesActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ProfileDetail"
             android:exported="false" />
         <activity
             android:name=".activities.VideoDetail"
             android:exported="false" />
         <activity
-            android:name=".activities.TestDetail"
+            android:name=".activities.TestDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.TestChoice"
+            android:name=".activities.TestChoiceActivity"
             android:exported="false" /> <!-- Login Activity (Main Entry Point) -->
         <activity
             android:name=".activities.LoginActivity"
@@ -77,10 +80,6 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.ForgotPasswordActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".activities.ProfileUpdateActivity"
             android:exported="false"
             android:screenOrientation="portrait" /> <!-- Teacher Activities -->
@@ -113,15 +112,15 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.ManageRolesActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".activities.ManageClassesActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.ManageContentActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.QuestionBankActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
@@ -139,6 +138,15 @@
         <activity
             android:name=".activities.MainActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.CourseDetailActivity" />
+        <activity android:name=".activities.ClassDetailActivity" />
+        <activity
+            android:name=".activities.FlashcardDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.StudentListForProgressActivity" />
+        <activity android:name=".activities.StudentListForEvaluationActivity" />
     </application>
 
 </manifest>

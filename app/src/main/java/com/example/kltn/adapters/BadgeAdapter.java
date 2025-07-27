@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.kltn.models.Badge;
 import com.example.kltn.R;
 import java.util.List;
+import com.bumptech.glide.Glide;
 
 public class BadgeAdapter extends RecyclerView.Adapter<BadgeAdapter.ViewHolder> {
     private List<Badge> badges;
@@ -22,29 +23,29 @@ public class BadgeAdapter extends RecyclerView.Adapter<BadgeAdapter.ViewHolder> 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_badge_card, parent, false);
+                .inflate(R.layout.item_badge, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Badge badge = badges.get(position);
-        holder.tvBadgeName.setText(badge.getName());
-        holder.tvBadgeDescription.setText(badge.getDescription());
-        if (badge.isEarned()) {
-            holder.ivBadgeIcon.setBackgroundTintList(holder.itemView.getContext()
-                    .getResources().getColorStateList(R.color.primary_blue));
-            holder.tvBadgeStatus.setText(holder.itemView.getContext()
-                    .getString(R.string.badge_earned));
-            holder.tvBadgeStatus.setBackgroundTintList(holder.itemView.getContext()
-                    .getResources().getColorStateList(R.color.success_green));
+        holder.tvBadgeTitle.setText(badge.getName());
+        holder.tvBadgeDesc.setText(badge.getDescription());
+        // Load image (nếu có imageUrl)
+        if (badge.getImageUrl() != null && !badge.getImageUrl().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(badge.getImageUrl())
+                    .placeholder(R.drawable.bad1)
+                    .into(holder.imgBadge);
         } else {
-            holder.ivBadgeIcon.setBackgroundTintList(holder.itemView.getContext()
-                    .getResources().getColorStateList(R.color.medium_gray));
-            holder.tvBadgeStatus.setText(holder.itemView.getContext()
-                    .getString(R.string.badge_locked));
-            holder.tvBadgeStatus.setBackgroundTintList(holder.itemView.getContext()
-                    .getResources().getColorStateList(R.color.dark_gray));
+            holder.imgBadge.setImageResource(R.drawable.bad1);
+        }
+        // Hiệu ứng sáng/tối
+        if (badge.isEarned()) {
+            holder.imgBadge.setAlpha(1.0f);
+        } else {
+            holder.imgBadge.setAlpha(0.3f); // Tối màu nếu chưa đạt
         }
     }
 
@@ -54,15 +55,14 @@ public class BadgeAdapter extends RecyclerView.Adapter<BadgeAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivBadgeIcon;
-        TextView tvBadgeName, tvBadgeDescription, tvBadgeStatus;
+        ImageView imgBadge;
+        TextView tvBadgeTitle, tvBadgeDesc;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ivBadgeIcon = itemView.findViewById(R.id.iv_badge_icon);
-            tvBadgeName = itemView.findViewById(R.id.tv_badge_name);
-            tvBadgeDescription = itemView.findViewById(R.id.tv_badge_description);
-            tvBadgeStatus = itemView.findViewById(R.id.tv_badge_status);
+            imgBadge = itemView.findViewById(R.id.imgBadge);
+            tvBadgeTitle = itemView.findViewById(R.id.tvBadgeTitle);
+            tvBadgeDesc = itemView.findViewById(R.id.tvBadgeDesc);
         }
     }
 } 

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +27,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import android.widget.ArrayAdapter;
 
 public class ManageClassesActivity extends AppCompatActivity implements ClassSimpleAdapter.OnClassClickListener {
 
@@ -46,7 +50,7 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
         
         initViews();
         setupListeners();
-        loadSampleData();
+        loadClassesFromFirestore(); // Thay vì loadSampleData
         setupRecyclerView();
         updateTotalClasses();
     }
@@ -78,28 +82,23 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
         });
     }
     
-    private void loadSampleData() {
+    private void loadClassesFromFirestore() {
         allClasses = new ArrayList<>();
-        
-        // Sample data matching the HTML design
-        Calendar cal = Calendar.getInstance();
-        
-        cal.set(2024, 0, 15); // January 15, 2024
-        allClasses.add(new ClassInfo("Class 1A", "Beginner English", 20, 15, "Teacher A", true, cal.getTime()));
-        
-        cal.set(2024, 1, 20); // February 20, 2024
-        allClasses.add(new ClassInfo("Class 2B", "Intermediate English", 25, 20, "Teacher B", true, cal.getTime()));
-        
-        cal.set(2024, 2, 10); // March 10, 2024
-        allClasses.add(new ClassInfo("Class 3C", "Advanced English", 18, 18, "Teacher C", true, cal.getTime()));
-        
-        cal.set(2024, 3, 5); // April 5, 2024
-        allClasses.add(new ClassInfo("Class 4D", "Business English", 30, 22, "Teacher D", true, cal.getTime()));
-        
-        cal.set(2024, 4, 22); // May 22, 2024
-        allClasses.add(new ClassInfo("Class 5E", "Conversation English", 20, 16, "Teacher E", true, cal.getTime()));
-        
-        filteredClasses = new ArrayList<>(allClasses);
+        filteredClasses = new ArrayList<>();
+        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+        db.collection("classes").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            allClasses.clear();
+            for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                ClassInfo classInfo = ClassInfo.fromDocument(doc);
+                classInfo.setDocumentId(doc.getId());
+                allClasses.add(classInfo);
+            }
+            filteredClasses = new ArrayList<>(allClasses);
+            if (adapter != null) {
+                adapter.updateData(filteredClasses);
+            }
+            updateTotalClasses();
+        });
     }
     
     private void setupRecyclerView() {
@@ -118,57 +117,49 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
         if (query.isEmpty()) {
             filteredClasses = new ArrayList<>(allClasses);
         } else {
-            filteredClasses = allClasses.stream()
-                    .filter(classInfo -> classInfo.getName().toLowerCase().contains(query.toLowerCase()))
-                    .collect(Collectors.toList());
+            filteredClasses = new ArrayList<>();
+            for (ClassInfo classInfo : allClasses) {
+                if (classInfo.getName() != null && classInfo.getName().toLowerCase().contains(query.toLowerCase())) {
+                    filteredClasses.add(classInfo);
+                }
+            }
         }
-        adapter.filterData(filteredClasses);
+        adapter.updateData(filteredClasses);
     }
     
     private void showAddClassDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_edit_class, null);
         builder.setView(dialogView);
-        
         AlertDialog dialog = builder.create();
-        
         // Get dialog views
         TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
         EditText etClassName = dialogView.findViewById(R.id.et_class_name);
         EditText etDescription = dialogView.findViewById(R.id.et_description);
         EditText etCapacity = dialogView.findViewById(R.id.et_capacity);
-        EditText etTeacherName = dialogView.findViewById(R.id.et_teacher_name);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
         Button btnSave = dialogView.findViewById(R.id.btn_save);
-        
         // Set title
         tvTitle.setText("Add New Class");
-        
         // Set click listeners
         btnCancel.setOnClickListener(v -> dialog.dismiss());
-        
         btnSave.setOnClickListener(v -> {
             String className = etClassName.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
             String capacityStr = etCapacity.getText().toString().trim();
-            String teacherName = etTeacherName.getText().toString().trim();
-            
             // Validation
             if (className.isEmpty()) {
                 etClassName.setError("Class name is required");
                 return;
             }
-            
             if (description.isEmpty()) {
                 etDescription.setError("Description is required");
                 return;
             }
-            
             if (capacityStr.isEmpty()) {
                 etCapacity.setError("Capacity is required");
                 return;
             }
-            
             int capacity;
             try {
                 capacity = Integer.parseInt(capacityStr);
@@ -180,23 +171,23 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
                 etCapacity.setError("Invalid capacity");
                 return;
             }
-            
-            if (teacherName.isEmpty()) {
-                etTeacherName.setError("Teacher name is required");
-                return;
-            }
-            
-            // Create new class
-            ClassInfo newClass = new ClassInfo(className, description, capacity, 0, teacherName, true, new Date());
-            allClasses.add(newClass);
-            filteredClasses.add(newClass);
-            adapter.updateData(filteredClasses);
-            updateTotalClasses();
-            
-            dialog.dismiss();
-            Toast.makeText(this, "Class added successfully", Toast.LENGTH_SHORT).show();
+            // Tạo dữ liệu lớp học mới chỉ với 3 trường
+            java.util.Map<String, Object> classData = new java.util.HashMap<>();
+            classData.put("name", className);
+            classData.put("description", description);
+            classData.put("capacity", capacity);
+            classData.put("created_at", com.google.firebase.Timestamp.now());
+            com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+            db.collection("classes").add(classData)
+                .addOnSuccessListener(documentReference -> {
+                    dialog.dismiss();
+                    Toast.makeText(this, "Class added successfully", Toast.LENGTH_SHORT).show();
+                    loadClassesFromFirestore();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to add class: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
         });
-        
         dialog.show();
     }
     
@@ -204,50 +195,76 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_edit_class, null);
         builder.setView(dialogView);
-        
         AlertDialog dialog = builder.create();
-        
         // Get dialog views
         TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
         EditText etClassName = dialogView.findViewById(R.id.et_class_name);
         EditText etDescription = dialogView.findViewById(R.id.et_description);
         EditText etCapacity = dialogView.findViewById(R.id.et_capacity);
-        EditText etTeacherName = dialogView.findViewById(R.id.et_teacher_name);
+        Spinner spTeacher = dialogView.findViewById(R.id.sp_teacher);
+        Spinner spCourse = dialogView.findViewById(R.id.sp_course);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
         Button btnSave = dialogView.findViewById(R.id.btn_save);
-        
         // Set title and populate fields
         tvTitle.setText("Edit Class");
         etClassName.setText(classInfo.getName());
         etDescription.setText(classInfo.getDescription());
         etCapacity.setText(String.valueOf(classInfo.getCapacity()));
-        etTeacherName.setText(classInfo.getTeacherName());
-        
+        // Khai báo teacherIds, courseIds ngoài callback
+        final List<String>[] teacherIds = new List[]{new ArrayList<>()};
+        final List<String>[] courseIds = new List[]{new ArrayList<>()};
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").whereEqualTo("role", "teacher").get().addOnSuccessListener(teacherSnap -> {
+            List<String> teacherNames = new ArrayList<>();
+            int selectedTeacherIdx = -1;
+            teacherIds[0].clear();
+            for (int i = 0; i < teacherSnap.size(); i++) {
+                String name = teacherSnap.getDocuments().get(i).getString("full_name");
+                String id = teacherSnap.getDocuments().get(i).getId();
+                teacherNames.add(name);
+                teacherIds[0].add(id);
+                if (id.equals(classInfo.getTeacherName())) selectedTeacherIdx = i;
+            }
+            ArrayAdapter<String> teacherAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, teacherNames);
+            teacherAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spTeacher.setAdapter(teacherAdapter);
+            if (selectedTeacherIdx >= 0) spTeacher.setSelection(selectedTeacherIdx);
+        });
+        db.collection("courses").get().addOnSuccessListener(courseSnap -> {
+            List<String> courseNames = new ArrayList<>();
+            int selectedCourseIdx = -1;
+            courseIds[0].clear();
+            for (int i = 0; i < courseSnap.size(); i++) {
+                String name = courseSnap.getDocuments().get(i).getString("name");
+                String id = courseSnap.getDocuments().get(i).getId();
+                courseNames.add(name);
+                courseIds[0].add(id);
+            }
+            ArrayAdapter<String> courseAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, courseNames);
+            courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spCourse.setAdapter(courseAdapter);
+        });
         // Set click listeners
         btnCancel.setOnClickListener(v -> dialog.dismiss());
-        
         btnSave.setOnClickListener(v -> {
             String className = etClassName.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
             String capacityStr = etCapacity.getText().toString().trim();
-            String teacherName = etTeacherName.getText().toString().trim();
-            
+            int teacherIdx = spTeacher.getSelectedItemPosition();
+            int courseIdx = spCourse.getSelectedItemPosition();
             // Validation
             if (className.isEmpty()) {
                 etClassName.setError("Class name is required");
                 return;
             }
-            
             if (description.isEmpty()) {
                 etDescription.setError("Description is required");
                 return;
             }
-            
             if (capacityStr.isEmpty()) {
                 etCapacity.setError("Capacity is required");
                 return;
             }
-            
             int capacity;
             try {
                 capacity = Integer.parseInt(capacityStr);
@@ -259,32 +276,25 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
                 etCapacity.setError("Invalid capacity");
                 return;
             }
-            
-            if (teacherName.isEmpty()) {
-                etTeacherName.setError("Teacher name is required");
-                return;
-            }
-            
-            // Update class info
-            // Note: Since ClassInfo is immutable, we'll remove and add a new one
-            int index = allClasses.indexOf(classInfo);
-            if (index != -1) {
-                ClassInfo updatedClass = new ClassInfo(className, description, capacity, 
-                    classInfo.getCurrentStudents(), teacherName, classInfo.isActive(), classInfo.getCreationDate());
-                allClasses.set(index, updatedClass);
-                
-                // Update filtered list
-                int filteredIndex = filteredClasses.indexOf(classInfo);
-                if (filteredIndex != -1) {
-                    filteredClasses.set(filteredIndex, updatedClass);
-                }
-                
-                adapter.updateData(filteredClasses);
-                dialog.dismiss();
-                Toast.makeText(this, "Class updated successfully", Toast.LENGTH_SHORT).show();
-            }
+            // Update Firestore bằng documentId
+            FirebaseFirestore db2 = FirebaseFirestore.getInstance();
+            String teacherId = teacherIdx >= 0 && teacherIdx < teacherIds[0].size() ? teacherIds[0].get(teacherIdx) : null;
+            String courseId = courseIdx >= 0 && courseIdx < courseIds[0].size() ? courseIds[0].get(courseIdx) : null;
+            db2.collection("classes").document(classInfo.getDocumentId())
+                .update(
+                    "name", className,
+                    "description", description,
+                    "capacity", capacity,
+                    "teacher_id", teacherId,
+                    "course_id", courseId
+                ).addOnSuccessListener(aVoid -> {
+                    dialog.dismiss();
+                    Toast.makeText(this, "Class updated successfully", Toast.LENGTH_SHORT).show();
+                    loadClassesFromFirestore();
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to update class: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
         });
-        
         dialog.show();
     }
     
@@ -293,11 +303,16 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
                 .setTitle("Delete Class")
                 .setMessage("Are you sure you want to delete " + classInfo.getName() + "?")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    allClasses.remove(classInfo);
-                    filteredClasses.remove(classInfo);
-                    adapter.updateData(filteredClasses);
-                    updateTotalClasses();
-                    Toast.makeText(this, "Class deleted successfully", Toast.LENGTH_SHORT).show();
+                    com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+                    db.collection("classes").document(classInfo.getDocumentId())
+                        .delete()
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Class deleted successfully", Toast.LENGTH_SHORT).show();
+                            loadClassesFromFirestore();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Failed to delete class: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -305,8 +320,17 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
 
     @Override
     public void onClassClick(ClassInfo classInfo) {
-        // TODO: Navigate to class detail screen
-        Toast.makeText(this, "Selected: " + classInfo.getName(), Toast.LENGTH_SHORT).show();
+        android.content.Intent intent = new android.content.Intent(this, ClassDetailActivity.class);
+        intent.putExtra("class_id", classInfo.getDocumentId());
+        startActivityForResult(intent, 100);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            loadClassesFromFirestore();
+        }
     }
 
     @Override
@@ -315,8 +339,7 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
     }
     
     private void showEditOptionsDialog(ClassInfo classInfo) {
-        String[] options = {"Edit", "Delete"};
-        
+        String[] options = {"Edit", "Delete", "Gán giáo viên", "Gán học viên"};
         new AlertDialog.Builder(this)
                 .setTitle("Class Options")
                 .setItems(options, (dialog, which) -> {
@@ -327,8 +350,102 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
                         case 1: // Delete
                             showDeleteClassDialog(classInfo);
                             break;
+                        case 2: // Gán giáo viên
+                            showAssignTeacherDialog(classInfo);
+                            break;
+                        case 3: // Gán học viên
+                            showAssignStudentsDialog(classInfo);
+                            break;
                     }
                 })
                 .show();
+    }
+
+    // Gán giáo viên
+    private void showAssignTeacherDialog(ClassInfo classInfo) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").whereEqualTo("role", "teacher").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<String> teacherNames = new ArrayList<>();
+            List<String> teacherIds = new ArrayList<>();
+            for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                String name = doc.getString("full_name");
+                String userId = doc.getId();
+                teacherNames.add(name);
+                teacherIds.add(userId);
+            }
+            String[] namesArr = teacherNames.toArray(new String[0]);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Chọn giáo viên cho lớp");
+            builder.setSingleChoiceItems(namesArr, -1, (dialog, which) -> {
+                String selectedTeacherId = teacherIds.get(which);
+                // 1. Update teacher_id của lớp
+                db.collection("classes").document(classInfo.getDocumentId())
+                    .update("teacher_id", selectedTeacherId)
+                    .addOnSuccessListener(aVoid -> {
+                        // 2. Thêm class_id vào class_ids của user
+                        db.collection("users").document(selectedTeacherId)
+                            .update("class_ids", com.google.firebase.firestore.FieldValue.arrayUnion(classInfo.getDocumentId()));
+                        Toast.makeText(this, "Đã gán giáo viên cho lớp!", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    });
+            });
+            builder.setNegativeButton("Hủy", null);
+            builder.show();
+        });
+    }
+
+    // Gán học viên
+    private void showAssignStudentsDialog(ClassInfo classInfo) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // 1. Lấy student_ids hiện tại của lớp
+        db.collection("classes").document(classInfo.getDocumentId()).get().addOnSuccessListener(classDoc -> {
+            List<String> currentStudentIds = (List<String>) classDoc.get("student_ids");
+            if (currentStudentIds == null) currentStudentIds = new ArrayList<>();
+            final List<String> finalCurrentStudentIds = currentStudentIds;
+            // 2. Lấy toàn bộ user role=student
+            db.collection("users").whereEqualTo("role", "student").get().addOnSuccessListener(queryDocumentSnapshots -> {
+                List<String> studentNames = new ArrayList<>();
+                List<String> studentIds = new ArrayList<>();
+                for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                    String name = doc.getString("full_name");
+                    String userId = doc.getId();
+                    if (!finalCurrentStudentIds.contains(userId)) {
+                        studentNames.add(name);
+                        studentIds.add(userId);
+                    }
+                }
+                boolean[] checkedItems = new boolean[studentNames.size()];
+                List<Integer> selectedIndexes = new ArrayList<>();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Chọn học viên cho lớp");
+                builder.setMultiChoiceItems(studentNames.toArray(new String[0]), checkedItems, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        selectedIndexes.add(which);
+                    } else {
+                        selectedIndexes.remove(Integer.valueOf(which));
+                    }
+                });
+                builder.setPositiveButton("Gán học viên", (dialog, which) -> {
+                    List<String> selectedStudentIds = new ArrayList<>();
+                    for (int idx : selectedIndexes) {
+                        selectedStudentIds.add(studentIds.get(idx));
+                    }
+                    // 1. Update student_ids của lớp (thêm vào, không ghi đè)
+                    db.collection("classes").document(classInfo.getDocumentId())
+                        .update("student_ids", com.google.firebase.firestore.FieldValue.arrayUnion(selectedStudentIds.toArray()))
+                        .addOnSuccessListener(aVoid -> {
+                            // 2. Thêm class_id vào class_ids của từng user học viên
+                            for (String studentId : selectedStudentIds) {
+                                db.collection("users").document(studentId)
+                                    .update("class_ids", com.google.firebase.firestore.FieldValue.arrayUnion(classInfo.getDocumentId()));
+                            }
+                            Toast.makeText(this, "Đã gán học viên cho lớp!", Toast.LENGTH_SHORT).show();
+                            loadClassesFromFirestore();
+                        });
+                });
+                builder.setNegativeButton("Hủy", null);
+                builder.show();
+            });
+        });
     }
 } 

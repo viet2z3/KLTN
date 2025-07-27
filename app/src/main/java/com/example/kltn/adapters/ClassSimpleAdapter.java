@@ -58,6 +58,10 @@ public class ClassSimpleAdapter extends RecyclerView.Adapter<ClassSimpleAdapter.
                 listener.onEditClick(classInfo);
             }
         });
+
+        if (holder.tvCreatedOn != null) {
+            holder.tvCreatedOn.setText("Created on: " + classInfo.getFormattedCreationDate());
+        }
     }
     
     @Override
@@ -79,12 +83,14 @@ public class ClassSimpleAdapter extends RecyclerView.Adapter<ClassSimpleAdapter.
         TextView tvClassName;
         TextView tvClassInfo;
         ImageButton btnEdit;
+        TextView tvCreatedOn; // Added for creation date
         
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvClassName = itemView.findViewById(R.id.tv_class_name);
             tvClassInfo = itemView.findViewById(R.id.tv_class_info);
             btnEdit = itemView.findViewById(R.id.btn_edit);
+            tvCreatedOn = itemView.findViewById(R.id.tv_created_on); // Bỏ comment để hiển thị ngày tạo
         }
     }
 } 

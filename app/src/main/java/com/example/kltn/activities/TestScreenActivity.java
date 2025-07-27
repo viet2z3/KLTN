@@ -22,12 +22,17 @@ public class TestScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_screen);
 
+        String userId = getIntent().getStringExtra("user_id");
+        String userEmail = getIntent().getStringExtra("user_email");
+
         // Xử lý sự kiện khi ấn nút Start Test
         View startTestButton = findViewById(R.id.r52en8o6v33);
         startTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(TestScreenActivity.this, TestChoice.class);
+                Intent intent = new Intent(TestScreenActivity.this,TestChoiceActivity.class);
+                if (userId != null) intent.putExtra("user_id", userId);
+                if (userEmail != null) intent.putExtra("user_email", userEmail);
                 startActivity(intent);
             }
         });

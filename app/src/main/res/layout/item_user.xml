@@ -45,15 +45,6 @@
             android:layout_marginTop="2dp" />
 
         <TextView
-            android:id="@+id/tvUserPhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0123456789"
-            android:textColor="#5c748a"
-            android:textSize="14sp"
-            android:layout_marginTop="2dp" />
-
-        <TextView
             android:id="@+id/tvUserRole"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

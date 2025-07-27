@@ -33,12 +33,21 @@
             android:id="@+id/tv_class_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="15 students · Created on 01/15/2024"
+            android:text="15 students "
             android:textColor="#5C748A"
             android:textSize="14sp"
             android:fontFamily="sans-serif"
             android:maxLines="2"
             android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/tv_created_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#5C748A"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"/>
 
     </LinearLayout>
 

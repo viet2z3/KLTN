@@ -109,7 +109,13 @@
             <include layout="@layout/item_profile_info"
                 android:id="@+id/itemRole" />
             <include layout="@layout/item_profile_info"
+                android:id="@+id/itemCourseName" />
+            <include layout="@layout/item_profile_info"
                 android:id="@+id/itemClassName" />
+            <include layout="@layout/item_profile_info"
+                android:id="@+id/itemLevel" />
+            <include layout="@layout/item_profile_info"
+                android:id="@+id/itemTeacher" />
         </LinearLayout>
 
         <!-- Buttons -->

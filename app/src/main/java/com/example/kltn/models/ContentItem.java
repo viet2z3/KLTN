@@ -1,5 +1,8 @@
 package com.example.kltn.models;
 
+import java.util.List;
+import java.util.Map;
+
 public class ContentItem {
     private String id;
     private String title;
@@ -9,6 +12,11 @@ public class ContentItem {
     private String category; // "vocabulary", "grammar", etc.
     private long createdAt;
     private boolean isActive;
+    private String courseId;
+    private List<Map<String, Object>> questions;
+    private List<String> questionIds;
+    private int duration;
+    private int maxScore;
 
     // Default constructor for Firebase
     public ContentItem() {
@@ -88,5 +96,43 @@ public class ContentItem {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getCourseId() {
+        return courseId;
+    }
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
+    }
+
+    public List<Map<String, Object>> getQuestions() {
+        return questions;
+    }
+    public void setQuestions(List<Map<String, Object>> questions) {
+        this.questions = questions;
+    }
+
+    public List<String> getQuestionIds() {
+        return questionIds;
+    }
+
+    public void setQuestionIds(List<String> questionIds) {
+        this.questionIds = questionIds;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public int getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(int maxScore) {
+        this.maxScore = maxScore;
     }
 } 
