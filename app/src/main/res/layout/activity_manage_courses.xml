@@ -20,6 +20,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:navigationIcon="@drawable/ic_back" />
 
+    <!-- Ô tìm kiếm -->
+    <EditText
+        android:id="@+id/etSearchCourse"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Tìm kiếm khóa học..."
+        android:drawableLeft="@android:drawable/ic_menu_search"
+        android:padding="12dp"
+        android:background="@drawable/search_background"
+        android:inputType="text"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="8dp" />
+
     <!-- Danh sách khóa học -->
 
     <!-- Nút thêm khóa học -->
@@ -35,7 +50,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toBottomOf="@id/etSearchCourse"
         app:layout_constraintVertical_bias="0.0"
         tools:listitem="@layout/item_course" />
 

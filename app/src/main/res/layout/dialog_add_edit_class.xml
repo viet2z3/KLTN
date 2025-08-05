@@ -64,6 +64,7 @@
         android:layout_marginBottom="12dp" />
 
     <TextView
+        android:id="@+id/tv_teacher_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Teacher"
@@ -81,6 +82,7 @@
         android:layout_marginBottom="16dp" />
 
     <TextView
+        android:id="@+id/tv_course_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Course"

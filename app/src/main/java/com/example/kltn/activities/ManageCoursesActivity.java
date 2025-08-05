@@ -29,6 +29,7 @@ public class ManageCoursesActivity extends AppCompatActivity {
     private RecyclerView recyclerViewCourses;
     private CourseAdapter courseAdapter;
     private List<Course> courseList = new ArrayList<>();
+    private List<Course> filteredCourseList = new ArrayList<>();
     private String userId;
 
     @Override
@@ -39,7 +40,9 @@ public class ManageCoursesActivity extends AppCompatActivity {
         userId = getIntent().getStringExtra("user_id");
         recyclerViewCourses = findViewById(R.id.recyclerViewCourses);
         recyclerViewCourses.setLayoutManager(new LinearLayoutManager(this));
-        courseAdapter = new CourseAdapter(this, courseList, new CourseAdapter.OnCourseActionListener() {
+        // Khởi tạo danh sách lọc ban đầu
+        filteredCourseList.addAll(courseList);
+        courseAdapter = new CourseAdapter(this, filteredCourseList, new CourseAdapter.OnCourseActionListener() {
             @Override
             public void onAddClass(Course course) {
                 showAssignClassDialog(course);
@@ -64,9 +67,26 @@ public class ManageCoursesActivity extends AppCompatActivity {
                         .setNegativeButton("Hủy", null)
                         .show();
             }
+            @Override
+            public void onEditCourse(Course course) {
+                showEditCourseDialog(course);
+            }
         });
         recyclerViewCourses.setAdapter(courseAdapter);
         loadCoursesFromFirestore();
+
+        // Thiết lập tìm kiếm realtime
+        EditText etSearch = findViewById(R.id.etSearchCourse);
+        etSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterCourses(s.toString());
+            }
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
 
         FloatingActionButton fabAddCourse = findViewById(R.id.fabAddCourse);
         fabAddCourse.setOnClickListener(v -> showAddCourseDialog());
@@ -82,8 +102,69 @@ public class ManageCoursesActivity extends AppCompatActivity {
                 newList.add(course);
             }
             courseList = newList;
-            courseAdapter.updateData(courseList);
+            filterCourses(((EditText)findViewById(R.id.etSearchCourse)).getText().toString());
         });
+    }
+
+    // Hiển thị dialog chỉnh sửa khoá học
+    private void showEditCourseDialog(Course course) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_edit_course, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        EditText etName = dialogView.findViewById(R.id.etEditCourseName);
+        EditText etDesc = dialogView.findViewById(R.id.etEditCourseDesc);
+        Button btnSave = dialogView.findViewById(R.id.btnSaveEditCourse);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancelEditCourse);
+
+        // Set current value
+        etName.setText(course.getName());
+        etDesc.setText(course.getDescription());
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String desc = etDesc.getText().toString().trim();
+            if (name.isEmpty()) {
+                etName.setError("Nhập tên khóa học");
+                return;
+            }
+            if (desc.isEmpty()) {
+                etDesc.setError("Nhập mô tả khóa học");
+                return;
+            }
+            // Update Firestore
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("courses").document(course.getId())
+                    .update("name", name, "description", desc)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Đã cập nhật khóa học!", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        loadCoursesFromFirestore();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+        });
+        dialog.show();
+    }
+
+    // Hàm lọc danh sách khóa học theo từ khóa
+    private void filterCourses(String keyword) {
+        filteredCourseList.clear();
+        if (keyword == null || keyword.trim().isEmpty()) {
+            filteredCourseList.addAll(courseList);
+        } else {
+            String lowerKeyword = keyword.toLowerCase();
+            for (Course course : courseList) {
+                if ((course.getName() != null && course.getName().toLowerCase().contains(lowerKeyword)) ||
+                    (course.getDescription() != null && course.getDescription().toLowerCase().contains(lowerKeyword))) {
+                    filteredCourseList.add(course);
+                }
+            }
+        }
+        courseAdapter.updateData(filteredCourseList);
     }
 
     private void showAddCourseDialog() {

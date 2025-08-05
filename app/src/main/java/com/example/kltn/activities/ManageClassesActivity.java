@@ -138,8 +138,20 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
         EditText etClassName = dialogView.findViewById(R.id.et_class_name);
         EditText etDescription = dialogView.findViewById(R.id.et_description);
         EditText etCapacity = dialogView.findViewById(R.id.et_capacity);
+        Spinner spTeacher = dialogView.findViewById(R.id.sp_teacher);
+        Spinner spCourse = dialogView.findViewById(R.id.sp_course);
+        TextView tvTeacher = null;
+        TextView tvCourse = null;
+        // Lấy TextView label (phải đảm bảo id trong XML, nếu chưa có thì thêm)
+        tvTeacher = (TextView) ((View) spTeacher.getParent()).findViewById(R.id.tv_teacher_label);
+        tvCourse = (TextView) ((View) spCourse.getParent()).findViewById(R.id.tv_course_label);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
         Button btnSave = dialogView.findViewById(R.id.btn_save);
+        // Ẩn Teacher & Course khi thêm mới
+        if (spTeacher != null) spTeacher.setVisibility(View.GONE);
+        if (spCourse != null) spCourse.setVisibility(View.GONE);
+        if (tvTeacher != null) tvTeacher.setVisibility(View.GONE);
+        if (tvCourse != null) tvCourse.setVisibility(View.GONE);
         // Set title
         tvTitle.setText("Add New Class");
         // Set click listeners

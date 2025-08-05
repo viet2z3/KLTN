@@ -16,6 +16,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -316,6 +317,7 @@ public class ManageUsersActivity extends AppCompatActivity implements UserAdapte
         Button btnChangeAvatar = dialogView.findViewById(R.id.btn_change_avatar);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel_edit);
         Button btnSave = dialogView.findViewById(R.id.btn_save_edit);
+        ImageButton btnDelete = dialogView.findViewById(R.id.btn_delete_user);
 
         // Setup gender spinner
         String[] genders = {"Nam", "Nữ", "Khác"};
@@ -354,6 +356,10 @@ public class ManageUsersActivity extends AppCompatActivity implements UserAdapte
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
         btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnDelete.setOnClickListener(v ->{
+            showDeleteConfirmation(user);
+            dialog.dismiss();
+        });
         btnSave.setOnClickListener(v -> {
             String newName = etName.getText().toString().trim();
             String newEmail = etEmail.getText().toString().trim();

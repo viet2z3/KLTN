@@ -29,6 +29,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
     public interface OnCourseActionListener {
         void onAddClass(Course course);
         void onDeleteCourse(Course course);
+        void onEditCourse(Course course);
     }
 
     public CourseAdapter(Context context, List<Course> courseList, OnCourseActionListener listener) {
@@ -96,12 +97,17 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
                     AlertDialog dialog = builder.create();
                     LinearLayout btnAdd = dialogView.findViewById(R.id.layoutAddClass);
                     LinearLayout btnDelete = dialogView.findViewById(R.id.layoutDeleteCourse);
+                    LinearLayout btnEdit = dialogView.findViewById(R.id.layoutEditCourse);
                     btnAdd.setOnClickListener(view -> {
                         if (listener != null) listener.onAddClass(course);
                         dialog.dismiss();
                     });
                     btnDelete.setOnClickListener(view -> {
                         if (listener != null) listener.onDeleteCourse(course);
+                        dialog.dismiss();
+                    });
+                    btnEdit.setOnClickListener(view -> {
+                        if (listener != null) listener.onEditCourse(course);
                         dialog.dismiss();
                     });
                     dialog.show();
