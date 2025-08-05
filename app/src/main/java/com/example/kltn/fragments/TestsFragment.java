@@ -75,6 +75,18 @@ public class TestsFragment extends Fragment {
         adapter = new TestsManageAdapter(getContext(), new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
+        adapter.setOnTestActionListener(new TestsManageAdapter.OnTestActionListener() {
+            @Override
+            public void onEdit(ContentItem test) {
+                showAddEditTestDialog(test);
+            }
+
+            @Override
+            public void onDelete(ContentItem test) {
+                confirmDeleteTest(test);
+            }
+        });
+
         FloatingActionButton fabAdd = view.findViewById(R.id.fabAddTest);
         fabAdd.setOnClickListener(v -> showAddEditTestDialog(null));
 
@@ -258,297 +270,295 @@ public class TestsFragment extends Fragment {
 
 
     public void showAddEditTestDialog(@Nullable ContentItem test) {
-        // Luôn reset trạng thái tick khi mở dialog sửa test mới hoặc tạo test mới
-        selectedQuestionIds.clear();
-        selectedIdToQuestionData.clear();
-        selectedIdToQuestionObj.clear();
+    Log.d("TEST_DIALOG", "STEP 0: showAddEditTestDialog CALLED");
+    // Luôn reset trạng thái tick khi mở dialog sửa test mới hoặc tạo test mới
+    selectedQuestionIds.clear();
+    selectedIdToQuestionData.clear();
+    selectedIdToQuestionObj.clear();
 
-        // Ngăn null pointer
-        updateSelectedQuestionsView = () -> {
-        };
+    // Ngăn null pointer
+    updateSelectedQuestionsView = () -> {};
 
-        if (test == null) {
-            Log.d("TEST_DEBUG_DIALOG", "Dialog opened for a NEW test.");
-        } else {
-            Log.d("TEST_DEBUG_DIALOG", "--- Dialog opened for EDIT test: " + test.getTitle() + " ---");
-            Log.d("TEST_DEBUG_DIALOG", "Max Score: " + test.getMaxScore());
-            Log.d("TEST_DEBUG_DIALOG", "Duration: " + test.getDuration());
-            Log.d("TEST_DEBUG_DIALOG", "Course ID: " + test.getCourseId());
-            Object questionsObj = test.getQuestions();
-            Log.d("TEST_DEBUG_DIALOG", "questionsObj: " + questionsObj + (questionsObj != null ? (" type: " + questionsObj.getClass().getName()) : ""));
-            if (questionsObj instanceof List) {
-                List<?> questions = (List<?>) questionsObj;
-                for (int i = 0; i < questions.size(); i++) {
-                    for (Object obj : questions) {
-                        if (obj instanceof Map) {
-                            @SuppressWarnings("unchecked")
-                            Map<String, Object> qMap = (Map<String, Object>) obj;
-                            String realId = qMap.get("id") != null ? qMap.get("id").toString() : null;
-                            if (realId != null && !realId.isEmpty()) {
-                                selectedQuestionIds.add(realId);
-                                selectedIdToQuestionData.put(realId, qMap);
-                                selectedIdToQuestionObj.put(realId, qMap);
-                            } else {
-                                Log.w("TEST_DEBUG_DIALOG", "Skipped question object with missing id: " + qMap);
-                            }
-                        }
-                    }
-                    updateSelectedQuestionsView.run();
-                }
-            }
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            LayoutInflater inflater = requireActivity().getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.dialog_add_edit_test, null);
-            builder.setView(dialogView);
-
-            final EditText etTestTitle = dialogView.findViewById(R.id.etTestTitle);
-            final EditText etTestDuration = dialogView.findViewById(R.id.etTestDuration);
-            final EditText etMaxScore = dialogView.findViewById(R.id.etMaxScore);
-            final Spinner spinnerCourse = dialogView.findViewById(R.id.spinnerCourse);
-            final Button btnPickQuestions = dialogView.findViewById(R.id.btnPickQuestions);
-            final LinearLayout containerSelectedQuestions = dialogView.findViewById(R.id.containerSelectedQuestions);
-            final Button btnCancel = dialogView.findViewById(R.id.btnCancel);
-            final Button btnSave = dialogView.findViewById(R.id.btnSave);
-
-            // --- Logic quản lý câu hỏi đã chọn ---
-            updateSelectedQuestionsView = () -> {
-                Log.d("VIEW_UPDATE_DEBUG", "--- Bắt đầu cập nhật giao diện câu hỏi đã chọn ---");
-                Log.d("VIEW_UPDATE_DEBUG", "Kích thước map dữ liệu: " + selectedIdToQuestionData.size());
-                containerSelectedQuestions.removeAllViews();
-                for (String qid : new ArrayList<>(selectedQuestionIds)) {
-                    LinearLayout row = new LinearLayout(getContext());
-                    row.setOrientation(LinearLayout.VERTICAL);
-                    row.setPadding(0, 0, 0, 16);
-
-                    // Dòng 1: Câu hỏi
-                    TextView tvQuestion = new TextView(getContext());
-                    Map<String, Object> qObj = selectedIdToQuestionObj.get(qid);
-                    String questionText = null;
-                    if (qObj != null) {
-                        questionText = (String) qObj.get("question_text");
-                        if (questionText == null) questionText = (String) qObj.get("content");
-                    }
-                    if (questionText == null) questionText = qid;
-                    tvQuestion.setText("Câu hỏi: " + questionText);
-                    tvQuestion.setPadding(8, 8, 8, 4);
-
-                    // Dòng 2: Đáp án + nút xóa
-                    LinearLayout answerRow = new LinearLayout(getContext());
-                    answerRow.setOrientation(LinearLayout.HORIZONTAL);
-                    answerRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
-
-                    TextView tvAnswer = new TextView(getContext());
-                    String answer = "";
-                    if (qObj != null) {
-                        answer = (String) qObj.get("correct_answer");
-                        if (answer == null) answer = (String) qObj.get("correctAnswer");
-                    }
-                    tvAnswer.setText("Đáp án: " + (answer != null ? answer : ""));
-                    tvAnswer.setTypeface(null, android.graphics.Typeface.BOLD);
-                    tvAnswer.setPadding(8, 0, 8, 8);
-
-                    ImageButton btnDelete = new ImageButton(getContext());
-                    btnDelete.setImageResource(android.R.drawable.ic_menu_delete);
-                    btnDelete.setBackgroundColor(android.graphics.Color.TRANSPARENT);
-                    btnDelete.setOnClickListener(v -> {
-                        selectedQuestionIds.remove(qid);
-                        selectedIdToQuestionData.remove(qid);
-                        selectedIdToQuestionObj.remove(qid);
-                        updateSelectedQuestionsView.run();
-                    });
-                    LinearLayout.LayoutParams delParams = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    delParams.weight = 0;
-                    delParams.leftMargin = 16;
-                    btnDelete.setLayoutParams(delParams);
-
-                    answerRow.addView(tvAnswer);
-                    answerRow.addView(btnDelete);
-
-                    row.addView(tvQuestion);
-                    row.addView(answerRow);
-
-                    containerSelectedQuestions.addView(row);
-                }
-            };
-
-
-            // --- Tải danh sách khóa học vào Spinner ---
-            List<String> courseNames = new ArrayList<>();
-            List<String> courseIds = new ArrayList<>();
-            ArrayAdapter<String> courseAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, courseNames);
-            courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerCourse.setAdapter(courseAdapter);
-
-            db.collection("courses").get().addOnSuccessListener(queryDocumentSnapshots -> {
-                courseNames.clear();
-                courseIds.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    courseNames.add(doc.getString("name"));
-                    courseIds.add(doc.getId());
-                }
-                courseAdapter.notifyDataSetChanged();
-                // Nếu là edit, chọn đúng khóa học
-                if (test != null && test.getCourseId() != null) {
-                    spinnerCourse.post(() -> {
-                        int pos = courseIds.indexOf(test.getCourseId());
-                        if (pos >= 0) {
-                            spinnerCourse.setSelection(pos, true);
-                        }
-                    });
-                }
-            });
-
-            // --- Nếu là chế độ Edit, điền thông tin cũ ---
-            if (test != null) {
-                builder.setTitle("Sửa Bài Test");
-                etTestTitle.setText(test.getTitle());
-                etTestDuration.setText(String.valueOf(test.getDuration()));
-                etMaxScore.setText(String.valueOf(test.getMaxScore()));
-
-                // Xử lý trường hợp mảng questions có thể là mảng object hoặc mảng ID hoặc trộn lẫn
-                if (test.getQuestions() != null && !test.getQuestions().isEmpty()) {
-                    Log.d("DEBUG_QUESTIONS", "Bắt đầu duyệt mảng questions, size = " + test.getQuestions().size());
-                    List<String> idsToFetch = new ArrayList<>();
-                    List<Map<String, Object>> objectsToShow = new ArrayList<>();
-                    int idx = 0;
-                    for (Object obj : test.getQuestions()) {
-                        Log.d("DEBUG_QUESTIONS", "Phan tu questions: " + obj + ", class: " + (obj != null ? obj.getClass().getName() : "null"));
-                        if (obj instanceof Map || (obj != null && obj.getClass().getName().contains("Map"))) {
-                            @SuppressWarnings("unchecked")
-                            Map<String, Object> qMap = (Map<String, Object>) obj;
-                            objectsToShow.add(normalizeQuestionData(qMap, null));
-                        } else if (obj instanceof String) {
-                            idsToFetch.add((String) obj);
+    if (test == null) {
+        Log.d("TEST_DEBUG_DIALOG", "Dialog opened for a NEW test.");
+    } else {
+        Log.d("TEST_DEBUG_DIALOG", "--- Dialog opened for EDIT test: " + test.getTitle() + " ---");
+        Log.d("TEST_DEBUG_DIALOG", "Max Score: " + test.getMaxScore());
+        Log.d("TEST_DEBUG_DIALOG", "Duration: " + test.getDuration());
+        Log.d("TEST_DEBUG_DIALOG", "Course ID: " + test.getCourseId());
+        Object questionsObj = test.getQuestions();
+        Log.d("TEST_DEBUG_DIALOG", "questionsObj: " + questionsObj + (questionsObj != null ? (" type: " + questionsObj.getClass().getName()) : ""));
+        if (questionsObj instanceof List) {
+            List<?> questions = (List<?>) questionsObj;
+            for (int i = 0; i < questions.size(); i++) {
+                for (Object obj : questions) {
+                    if (obj instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> qMap = (Map<String, Object>) obj;
+                        String realId = qMap.get("id") != null ? qMap.get("id").toString() : null;
+                        if (realId != null && !realId.isEmpty()) {
+                            selectedQuestionIds.add(realId);
+                            selectedIdToQuestionData.put(realId, qMap);
+                            selectedIdToQuestionObj.put(realId, qMap);
                         } else {
-                            Log.d("DEBUG_QUESTIONS", "Phần tử không phải Map cũng không phải String: " + obj);
+                            Log.w("TEST_DEBUG_DIALOG", "Skipped question object with missing id: " + qMap);
                         }
                     }
-                    // Hiển thị các object có sẵn
-                    selectedQuestionIds.clear();
-                    selectedIdToQuestionData.clear();
-                    selectedIdToQuestionObj.clear();
-                    int fakeIdx = 0;
-                    for (Map<String, Object> norm : objectsToShow) {
-                        String fakeId = "local_" + fakeIdx++;
-                        selectedQuestionIds.add(fakeId);
-                        selectedIdToQuestionData.put(fakeId, norm);
-                        // Thêm vào selectedIdToQuestionObj
-                        selectedIdToQuestionObj.put(fakeId, norm);
-                    }
-                    // Nếu có ID, truy vấn Firestore và gộp kết quả
-                    if (!idsToFetch.isEmpty()) {
-                        db.collection("questions").whereIn(com.google.firebase.firestore.FieldPath.documentId(), idsToFetch)
-                                .get().addOnSuccessListener(questionDocs -> {
-                                    for (QueryDocumentSnapshot doc : questionDocs) {
-                                        Map<String, Object> rawData = doc.getData();
-                                        Map<String, Object> norm = normalizeQuestionData(rawData, doc.getId());
-                                        String fakeId = "firestore_" + doc.getId();
-                                        selectedQuestionIds.add(fakeId);
-                                        selectedIdToQuestionData.put(fakeId, norm);
-                                        // Thêm vào selectedIdToQuestionObj
-                                        selectedIdToQuestionObj.put(fakeId, norm);
-                                    }
-                                    updateSelectedQuestionsView.run();
-                                });
-                    } else {
-                        updateSelectedQuestionsView.run();
-                    }
                 }
-            } else {
-                builder.setTitle("Thêm Bài Test Mới");
+                updateSelectedQuestionsView.run();
             }
+        }
+    }
 
+    Log.d("TEST_DIALOG", "STEP 1: Before inflate layout");
+    LayoutInflater inflater = requireActivity().getLayoutInflater();
+    View dialogView = inflater.inflate(R.layout.dialog_add_edit_test, null);
+    Log.d("TEST_DIALOG", "STEP 2: After inflate layout");
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+    builder.setView(dialogView);
 
-            AlertDialog dialog = builder.create();
+    final EditText etTestTitle = dialogView.findViewById(R.id.etTestTitle);
+    final EditText etTestDuration = dialogView.findViewById(R.id.etTestDuration);
+    final EditText etMaxScore = dialogView.findViewById(R.id.etMaxScore);
+    final Spinner spinnerCourse = dialogView.findViewById(R.id.spinnerCourse);
+    final Button btnPickQuestions = dialogView.findViewById(R.id.btnPickQuestions);
+    final LinearLayout containerSelectedQuestions = dialogView.findViewById(R.id.containerSelectedQuestions);
+    final Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+    final Button btnSave = dialogView.findViewById(R.id.btnSave);
+    Log.d("TEST_DIALOG", "STEP 3: After findViewById");
 
-            btnCancel.setOnClickListener(v -> dialog.dismiss());
+    // --- Logic quản lý câu hỏi đã chọn ---
+    updateSelectedQuestionsView = () -> {
+        Log.d("VIEW_UPDATE_DEBUG", "--- Bắt đầu cập nhật giao diện câu hỏi đã chọn ---");
+        Log.d("VIEW_UPDATE_DEBUG", "Kích thước map dữ liệu: " + selectedIdToQuestionData.size());
+        containerSelectedQuestions.removeAllViews();
+        for (String qid : new ArrayList<>(selectedQuestionIds)) {
+            LinearLayout row = new LinearLayout(getContext());
+            row.setOrientation(LinearLayout.VERTICAL);
+            row.setPadding(0, 0, 0, 16);
 
-            btnPickQuestions.setOnClickListener(v -> showQuestionPickerDialog());
+            // Dòng 1: Câu hỏi
+            TextView tvQuestion = new TextView(getContext());
+            Map<String, Object> qObj = selectedIdToQuestionObj.get(qid);
+            String questionText = null;
+            if (qObj != null) {
+                questionText = (String) qObj.get("question_text");
+                if (questionText == null) questionText = (String) qObj.get("content");
+            }
+            if (questionText == null) questionText = qid;
+            tvQuestion.setText("Câu hỏi: " + questionText);
+            tvQuestion.setPadding(8, 8, 8, 4);
 
-            btnSave.setOnClickListener(v -> {
-                String title = etTestTitle.getText().toString().trim();
-                String durationStr = etTestDuration.getText().toString().trim();
-                String maxScoreStr = etMaxScore.getText().toString().trim();
+            // Dòng 2: Đáp án + nút xóa
+            LinearLayout answerRow = new LinearLayout(getContext());
+            answerRow.setOrientation(LinearLayout.HORIZONTAL);
+            answerRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
 
-                if (title.isEmpty() || durationStr.isEmpty() || maxScoreStr.isEmpty()) {
-                    Toast.makeText(getContext(), "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                int duration = Integer.parseInt(durationStr);
-                int maxScore = Integer.parseInt(maxScoreStr);
-                int selectedCoursePos = spinnerCourse.getSelectedItemPosition();
-                if (selectedCoursePos < 0 || selectedCoursePos >= courseIds.size()) {
-                    Toast.makeText(getContext(), "Vui lòng chọn khóa học", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                String selectedCourseId = courseIds.get(selectedCoursePos);
+            TextView tvAnswer = new TextView(getContext());
+            String answer = "";
+            if (qObj != null) {
+                answer = (String) qObj.get("correct_answer");
+                if (answer == null) answer = (String) qObj.get("correctAnswer");
+            }
+            tvAnswer.setText("Đáp án: " + (answer != null ? answer : ""));
+            tvAnswer.setTypeface(null, android.graphics.Typeface.BOLD);
+            tvAnswer.setPadding(8, 0, 8, 8);
 
-                Map<String, Object> testData = new HashMap<>();
-                testData.put("title", title);
-                testData.put("duration", duration);
-                testData.put("course_id", selectedCourseId);
+            ImageButton btnDelete = new ImageButton(getContext());
+            btnDelete.setImageResource(android.R.drawable.ic_menu_delete);
+            btnDelete.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            btnDelete.setOnClickListener(v -> {
+                selectedQuestionIds.remove(qid);
+                selectedIdToQuestionData.remove(qid);
+                selectedIdToQuestionObj.remove(qid);
+                updateSelectedQuestionsView.run();
+            });
+            LinearLayout.LayoutParams delParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            delParams.weight = 0;
+            delParams.leftMargin = 16;
+            btnDelete.setLayoutParams(delParams);
 
-                // Tạo danh sách câu hỏi sạch để lưu
-                List<Map<String, Object>> questionsToSave = new ArrayList<>();
-                for (String qId : selectedQuestionIds) {
-                    Map<String, Object> rawData = selectedIdToQuestionData.get(qId);
-                    Map<String, Object> normalized = normalizeQuestionData(rawData, qId); // truyền qId vào luôn!
-                    Map<String, Object> cleanMap = new HashMap<>();
-                    cleanMap.put("id", qId); // id chính là id Firestore của câu hỏi đã chọn
+            answerRow.addView(tvAnswer);
+            answerRow.addView(btnDelete);
 
-                    Object questionText = normalized.get("content");
-                    if (questionText == null) questionText = normalized.get("question_text");
-                    if (questionText == null) questionText = normalized.get("thrilled");
+            row.addView(tvQuestion);
+            row.addView(answerRow);
 
-                    Object correctAnswer = normalized.get("correctAnswer");
-                    if (correctAnswer == null) correctAnswer = normalized.get("correct_answer");
-                    if (correctAnswer == null) correctAnswer = normalized.get("correct answer");
+            containerSelectedQuestions.addView(row);
+        }
+    };
 
-                    Object kind = normalized.get("type");
-                    if (kind == null) kind = normalized.get("kind");
+    // --- Tải danh sách khóa học vào Spinner ---
+    List<String> courseNames = new ArrayList<>();
+    List<String> courseIds = new ArrayList<>();
+    ArrayAdapter<String> courseAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, courseNames);
+    courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    spinnerCourse.setAdapter(courseAdapter);
 
-                    if (questionText != null) cleanMap.put("question_text", questionText);
-                    if (correctAnswer != null) cleanMap.put("correct_answer", correctAnswer);
-                    if (kind != null) cleanMap.put("type", kind);
-
-                    // Nếu là câu hỏi trắc nghiệm, thêm trường options
-                    if (kind != null && "multiple_choice".equals(kind)) {
-                        Object options = normalized.get("options");
-                        if (options != null) cleanMap.put("options", options);
-                    }
-
-                    questionsToSave.add(cleanMap);
-                }
-                testData.put("questions", questionsToSave); // Chỉ lưu 3 trường
-
-                testData.put("maxScore", maxScore);
-
-
-                if (test == null) { // Thêm mới
-                    db.collection("tests").add(testData)
-                            .addOnSuccessListener(documentReference -> {
-                                Toast.makeText(getContext(), "Thêm test thành công", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                                loadTests();
-                            })
-                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                } else { // Cập nhật
-                    db.collection("tests").document(test.getId()).set(testData)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                                loadTests();
-                            })
-                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    db.collection("courses").get().addOnSuccessListener(queryDocumentSnapshots -> {
+        courseNames.clear();
+        courseIds.clear();
+        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+            courseNames.add(doc.getString("name"));
+            courseIds.add(doc.getId());
+        }
+        courseAdapter.notifyDataSetChanged();
+        // Nếu là edit, chọn đúng khóa học
+        if (test != null && test.getCourseId() != null) {
+            spinnerCourse.post(() -> {
+                int pos = courseIds.indexOf(test.getCourseId());
+                if (pos >= 0) {
+                    spinnerCourse.setSelection(pos, true);
                 }
             });
-
-            dialog.show();
         }
+    });
 
+    // --- Nếu là chế độ Edit, điền thông tin cũ ---
+    if (test != null) {
+        builder.setTitle("Sửa Bài Test");
+        etTestTitle.setText(test.getTitle());
+        etTestDuration.setText(String.valueOf(test.getDuration()));
+        etMaxScore.setText(String.valueOf(test.getMaxScore()));
+
+        // Xử lý trường hợp mảng questions có thể là mảng object hoặc mảng ID hoặc trộn lẫn
+        if (test.getQuestions() != null && !test.getQuestions().isEmpty()) {
+            Log.d("DEBUG_QUESTIONS", "Bắt đầu duyệt mảng questions, size = " + test.getQuestions().size());
+            List<String> idsToFetch = new ArrayList<>();
+            List<Map<String, Object>> objectsToShow = new ArrayList<>();
+            int idx = 0;
+            for (Object obj : test.getQuestions()) {
+                Log.d("DEBUG_QUESTIONS", "Phan tu questions: " + obj + ", class: " + (obj != null ? obj.getClass().getName() : "null"));
+                if (obj instanceof Map || (obj != null && obj.getClass().getName().contains("Map"))) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> qMap = (Map<String, Object>) obj;
+                    objectsToShow.add(normalizeQuestionData(qMap, null));
+                } else if (obj instanceof String) {
+                    idsToFetch.add((String) obj);
+                } else {
+                    Log.d("DEBUG_QUESTIONS", "Phần tử không phải Map cũng không phải String: " + obj);
+                }
+            }
+            // Hiển thị các object có sẵn
+            selectedQuestionIds.clear();
+            selectedIdToQuestionData.clear();
+            selectedIdToQuestionObj.clear();
+            int fakeIdx = 0;
+            for (Map<String, Object> norm : objectsToShow) {
+                String fakeId = "local_" + fakeIdx++;
+                selectedQuestionIds.add(fakeId);
+                selectedIdToQuestionData.put(fakeId, norm);
+                // Thêm vào selectedIdToQuestionObj
+                selectedIdToQuestionObj.put(fakeId, norm);
+            }
+            // Nếu có ID, truy vấn Firestore và gộp kết quả
+            if (!idsToFetch.isEmpty()) {
+                db.collection("questions").whereIn(com.google.firebase.firestore.FieldPath.documentId(), idsToFetch)
+                        .get().addOnSuccessListener(questionDocs -> {
+                            for (QueryDocumentSnapshot doc : questionDocs) {
+                                Map<String, Object> rawData = doc.getData();
+                                Map<String, Object> norm = normalizeQuestionData(rawData, doc.getId());
+                                String fakeId = "firestore_" + doc.getId();
+                                selectedQuestionIds.add(fakeId);
+                                selectedIdToQuestionData.put(fakeId, norm);
+                                // Thêm vào selectedIdToQuestionObj
+                                selectedIdToQuestionObj.put(fakeId, norm);
+                            }
+                            updateSelectedQuestionsView.run();
+                        });
+            } else {
+                updateSelectedQuestionsView.run();
+            }
+        }
+    } else {
+        builder.setTitle("Thêm Bài Test Mới");
     }
+
+    AlertDialog dialog = builder.create();
+    btnCancel.setOnClickListener(v -> dialog.dismiss());
+    btnPickQuestions.setOnClickListener(v -> showQuestionPickerDialog());
+    btnSave.setOnClickListener(v -> {
+        String title = etTestTitle.getText().toString().trim();
+        String durationStr = etTestDuration.getText().toString().trim();
+        String maxScoreStr = etMaxScore.getText().toString().trim();
+
+        if (title.isEmpty() || durationStr.isEmpty() || maxScoreStr.isEmpty()) {
+            Toast.makeText(getContext(), "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int duration = Integer.parseInt(durationStr);
+        int maxScore = Integer.parseInt(maxScoreStr);
+        int selectedCoursePos = spinnerCourse.getSelectedItemPosition();
+        if (selectedCoursePos < 0 || selectedCoursePos >= courseIds.size()) {
+            Toast.makeText(getContext(), "Vui lòng chọn khóa học", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String selectedCourseId = courseIds.get(selectedCoursePos);
+
+        Map<String, Object> testData = new HashMap<>();
+        testData.put("title", title);
+        testData.put("duration", duration);
+        testData.put("course_id", selectedCourseId);
+
+        // Tạo danh sách câu hỏi sạch để lưu
+        List<Map<String, Object>> questionsToSave = new ArrayList<>();
+        for (String qId : selectedQuestionIds) {
+            Map<String, Object> rawData = selectedIdToQuestionData.get(qId);
+            Map<String, Object> normalized = normalizeQuestionData(rawData, qId); // truyền qId vào luôn!
+            Map<String, Object> cleanMap = new HashMap<>();
+            cleanMap.put("id", qId); // id chính là id Firestore của câu hỏi đã chọn
+
+            Object questionText = normalized.get("content");
+            if (questionText == null) questionText = normalized.get("question_text");
+            if (questionText == null) questionText = normalized.get("thrilled");
+
+            Object correctAnswer = normalized.get("correctAnswer");
+            if (correctAnswer == null) correctAnswer = normalized.get("correct_answer");
+            if (correctAnswer == null) correctAnswer = normalized.get("correct answer");
+
+            Object kind = normalized.get("type");
+            if (kind == null) kind = normalized.get("kind");
+
+            if (questionText != null) cleanMap.put("question_text", questionText);
+            if (correctAnswer != null) cleanMap.put("correct_answer", correctAnswer);
+            if (kind != null) cleanMap.put("type", kind);
+
+            // Nếu là câu hỏi trắc nghiệm, thêm trường options
+            if (kind != null && "multiple_choice".equals(kind)) {
+                Object options = normalized.get("options");
+                if (options != null) cleanMap.put("options", options);
+            }
+
+            questionsToSave.add(cleanMap);
+        }
+        testData.put("questions", questionsToSave); // Chỉ lưu 3 trường
+
+        testData.put("maxScore", maxScore);
+
+        if (test == null) { // Thêm mới
+            db.collection("tests").add(testData)
+                    .addOnSuccessListener(documentReference -> {
+                        Toast.makeText(getContext(), "Thêm test thành công", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        loadTests();
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        } else { // Cập nhật
+            db.collection("tests").document(test.getId()).set(testData)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        loadTests();
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
+    });
+    Log.d("TEST_DIALOG", "STEP 4: Before dialog.show()");
+    dialog.show();
+    Log.d("TEST_DIALOG", "STEP 5: After dialog.show()");
+}
+
     private void showQuestionPickerDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Chọn Câu Hỏi");

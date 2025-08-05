@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -397,55 +398,72 @@ public class ManageClassesActivity extends AppCompatActivity implements ClassSim
     // Gán học viên
     private void showAssignStudentsDialog(ClassInfo classInfo) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // 1. Lấy student_ids hiện tại của lớp
         db.collection("classes").document(classInfo.getDocumentId()).get().addOnSuccessListener(classDoc -> {
             List<String> currentStudentIds = (List<String>) classDoc.get("student_ids");
             if (currentStudentIds == null) currentStudentIds = new ArrayList<>();
             final List<String> finalCurrentStudentIds = currentStudentIds;
-            // 2. Lấy toàn bộ user role=student
             db.collection("users").whereEqualTo("role", "student").get().addOnSuccessListener(queryDocumentSnapshots -> {
                 List<String> studentNames = new ArrayList<>();
                 List<String> studentIds = new ArrayList<>();
                 for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
                     String name = doc.getString("full_name");
                     String userId = doc.getId();
-                    if (!finalCurrentStudentIds.contains(userId)) {
-                        studentNames.add(name);
-                        studentIds.add(userId);
+                    studentNames.add(name);
+                    studentIds.add(userId);
+                }
+
+                // Tạo dialog custom
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_assign_students, null);
+                builder.setView(dialogView);
+
+                EditText etSearch = dialogView.findViewById(R.id.et_search_student);
+                ListView lvStudents = dialogView.findViewById(R.id.lv_students);
+
+                // Adapter custom
+                com.example.kltn.adapters.StudentAssignAdapter adapter = new com.example.kltn.adapters.StudentAssignAdapter(
+                        this, studentNames, studentIds, finalCurrentStudentIds
+                );
+                lvStudents.setAdapter(adapter);
+                lvStudents.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
+                // Chọn lại các học viên đã thuộc lớp
+                for (int i = 0; i < studentIds.size(); i++) {
+                    if (finalCurrentStudentIds.contains(studentIds.get(i))) {
+                        lvStudents.setItemChecked(i, true);
                     }
                 }
-                boolean[] checkedItems = new boolean[studentNames.size()];
-                List<Integer> selectedIndexes = new ArrayList<>();
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Chọn học viên cho lớp");
-                builder.setMultiChoiceItems(studentNames.toArray(new String[0]), checkedItems, (dialog, which, isChecked) -> {
-                    if (isChecked) {
-                        selectedIndexes.add(which);
-                    } else {
-                        selectedIndexes.remove(Integer.valueOf(which));
+
+                // Search realtime
+                etSearch.addTextChangedListener(new android.text.TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        adapter.getFilter().filter(s);
                     }
+                    @Override
+                    public void afterTextChanged(android.text.Editable s) {}
                 });
-                builder.setPositiveButton("Gán học viên", (dialog, which) -> {
-                    List<String> selectedStudentIds = new ArrayList<>();
-                    for (int idx : selectedIndexes) {
-                        selectedStudentIds.add(studentIds.get(idx));
-                    }
-                    // 1. Update student_ids của lớp (thêm vào, không ghi đè)
+
+                // Đặt nút trước khi tạo dialog!
+                builder.setPositiveButton("Gán học viên", (d, which) -> {
+                    List<String> selectedStudentIds = new ArrayList<>(adapter.getSelectedIds());
                     db.collection("classes").document(classInfo.getDocumentId())
-                        .update("student_ids", com.google.firebase.firestore.FieldValue.arrayUnion(selectedStudentIds.toArray()))
-                        .addOnSuccessListener(aVoid -> {
-                            // 2. Thêm class_id vào class_ids của từng user học viên
-                            for (String studentId : selectedStudentIds) {
-                                db.collection("users").document(studentId)
-                                    .update("class_ids", com.google.firebase.firestore.FieldValue.arrayUnion(classInfo.getDocumentId()));
-                            }
-                            Toast.makeText(this, "Đã gán học viên cho lớp!", Toast.LENGTH_SHORT).show();
-                            loadClassesFromFirestore();
-                        });
+                            .update("student_ids", selectedStudentIds)
+                            .addOnSuccessListener(aVoid -> {
+                                for (String studentId : selectedStudentIds) {
+                                    db.collection("users").document(studentId)
+                                            .update("class_ids", com.google.firebase.firestore.FieldValue.arrayUnion(classInfo.getDocumentId()));
+                                }
+                                Toast.makeText(this, "Đã gán học viên cho lớp!", Toast.LENGTH_SHORT).show();
+                                loadClassesFromFirestore();
+                            });
                 });
-                builder.setNegativeButton("Hủy", null);
-                builder.show();
+                builder.setNegativeButton("Hủy", (d, which) -> {});
+                android.app.AlertDialog dialog = builder.create();
+                dialog.show();
             });
         });
     }
-} 
+}

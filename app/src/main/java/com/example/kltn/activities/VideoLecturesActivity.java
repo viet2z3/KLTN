@@ -102,6 +102,7 @@ public class VideoLecturesActivity extends AppCompatActivity {
     }
     private void openVideoDetail(VideoLesson video) {
         Intent intent = new Intent(this, VideoDetail.class);
+        intent.putExtra("video_id", video.id); // truyền videoId Firestore
         intent.putExtra("title", video.title);
         intent.putExtra("description", video.description);
         intent.putExtra("duration", video.duration);

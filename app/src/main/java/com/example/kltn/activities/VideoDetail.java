@@ -32,21 +32,23 @@ public class VideoDetail extends AppCompatActivity {
         String topic = getIntent().getStringExtra("topic");
         String thumbnailUrl = getIntent().getStringExtra("thumbnailUrl");
         String videoUrl = getIntent().getStringExtra("videoUrl");
+        // Lấy videoId Firestore từ intent
+        String videoId = getIntent().getStringExtra("video_id");
 
         TextView tvTitle = findViewById(R.id.rfxxxes5byk5);
         TextView tvDesc = findViewById(R.id.r6nrzucmp76v);
         tvTitle.setText(title);
         tvDesc.setText(description);
 
-        // Lấy videoId từ link YouTube
-        String videoId = extractYoutubeId(videoUrl);
+        // Lấy videoId Youtube (nếu cần play)
+        String youtubeId = extractYoutubeId(videoUrl);
 
         YouTubePlayerView youTubePlayerView = findViewById(R.id.youtubePlayerView);
         getLifecycle().addObserver(youTubePlayerView);
         youTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
             @Override
             public void onReady(YouTubePlayer youTubePlayer) {
-                youTubePlayer.cueVideo(videoId, 0);
+                youTubePlayer.cueVideo(youtubeId, 0);
             }
             @Override
             public void onVideoDuration(YouTubePlayer youTubePlayer, float duration) {
@@ -56,6 +58,7 @@ public class VideoDetail extends AppCompatActivity {
             public void onCurrentSecond(YouTubePlayer youTubePlayer, float second) {
                 if (!badgeAwarded && videoDuration > 0 && second >= 0.8 * videoDuration) {
                     badgeAwarded = true; // Đảm bảo chỉ trao 1 lần
+                    // Lưu tiến độ theo videoId Firestore
                     if (userId != null && videoId != null && !videoId.isEmpty()) {
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         db.collection("users").document(userId)
@@ -67,7 +70,7 @@ public class VideoDetail extends AppCompatActivity {
                         BadgeManager badgeManager = new BadgeManager(userId);
                         badgeManager.checkAndAwardVideoBadge();
                         badgeManager.updateLearningStreakAndCheckBadge();
-                        updateLearningHistory(userId); // <-- Thêm dòng này
+                        updateLearningHistory(userId);
                     }
                 }
             }

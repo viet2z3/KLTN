@@ -54,6 +54,7 @@
 
             <!-- Words Learned Card -->
             <LinearLayout
+                android:id="@+id/card_flashcard"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"
@@ -83,7 +84,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Words Learned"
+                            android:text="FlashCard Completed"
                             android:textColor="#5C708A"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -119,6 +120,7 @@
 
             <!-- Exercises Completed Card -->
             <LinearLayout
+                android:id="@+id/card_exercise"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"
@@ -184,6 +186,7 @@
 
             <!-- Tests Completed Card -->
             <LinearLayout
+                android:id="@+id/card_test"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"
@@ -249,6 +252,7 @@
 
             <!-- Videos Watched Card -->
             <LinearLayout
+                android:id="@+id/card_video"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"

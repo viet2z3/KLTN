@@ -1,5 +1,6 @@
 package com.example.kltn.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
@@ -19,12 +22,29 @@ import java.util.Map;
 
 
 public class ProgressTrackingActivity extends AppCompatActivity {
+    private LinearLayout cardFlashcard, cardExercise, cardTest, cardVideo;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_progress_tracking);
+
+        cardFlashcard = findViewById(R.id.card_flashcard);
+        cardExercise = findViewById(R.id.card_exercise);
+        cardTest = findViewById(R.id.card_test);
+        cardVideo = findViewById(R.id.card_video);
+
+        // Click Flashcard
+        cardFlashcard.setOnClickListener(v -> showLearnedFlashcardSets());
+        // Click Exercise
+        cardExercise.setOnClickListener(v -> showCompletedExercises());
+        // Click Test
+        cardTest.setOnClickListener(v -> showCompletedTests());
+        // Click Video
+        cardVideo.setOnClickListener(v -> showWatchedVideos());
 
         // Lấy userId từ intent (hoặc session)
         String userId = getIntent().getStringExtra("user_id");
@@ -140,6 +160,250 @@ public class ProgressTrackingActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.tv_overall_rating)).setText("Điểm tổng: " + String.format(java.util.Locale.getDefault(), "%.1f", overall));
         ((TextView)findViewById(R.id.tv_score)).setText("Điểm số: " + score);
         ((TextView)findViewById(R.id.tv_comments)).setText("Nhận xét: " + (comments != null ? comments : ""));
+    }
+    private void showLearnedFlashcardSets() {
+
+
+        String userId = getIntent().getStringExtra("user_id");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+                .collection("flashcard_progress")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Đã học flashcard")
+                                .setMessage("Bạn chưa học bộ flashcard nào!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    } else {
+                        java.util.List<String> setNames = new java.util.ArrayList<>();
+                        java.util.List<String> setIds = new java.util.ArrayList<>();
+                        for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                            String setId = doc.getId();
+                            String setName = doc.contains("set_name") ? doc.getString("set_name") : setId;
+                            setNames.add(setName);
+                            setIds.add(setId);
+                        }
+                        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_list_item_1, setNames);
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Các bộ flashcard đã học")
+                                .setAdapter(adapter, (dialog, which) -> {
+                                    // Khi click vào 1 bộ, mở chi tiết bộ đó
+                                    String selectedSetId = setIds.get(which);
+                                    String selectedSetName = setNames.get(which);
+                                    Intent intent = new Intent(this, FlashcardDetailActivity.class);
+                                    intent.putExtra("flashcard_set_id", selectedSetId);
+                                    intent.putExtra("flashcard_set_title", selectedSetName);
+                                    startActivity(intent);
+                                })
+                                .setNegativeButton("Đóng", null)
+                                .show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Lỗi")
+                            .setMessage("Không thể lấy dữ liệu flashcard đã học: " + e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
+    }
+    private void showCompletedExercises() {
+
+        String userId = getIntent().getStringExtra("user_id");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+                .collection("exercises")
+                .whereEqualTo("completed", true)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Bài tập đã làm")
+                                .setMessage("Bạn chưa hoàn thành bài tập nào!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    } else {
+                        java.util.List<String> exerciseIds = new java.util.ArrayList<>();
+                        for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                            exerciseIds.add(doc.getId());
+                        }
+                        if (exerciseIds.isEmpty()) {
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Bài tập đã làm")
+                                .setMessage("Bạn chưa hoàn thành bài tập nào!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                            return;
+                        }
+                        // Truy vấn sang bảng exercises lấy title
+                        db.collection("exercises")
+                                .whereIn(FieldPath.documentId(), exerciseIds)
+                                .get()
+                                .addOnSuccessListener(exerciseDocs -> {
+                                    java.util.List<String> titles = new java.util.ArrayList<>();
+                                    for (com.google.firebase.firestore.DocumentSnapshot doc : exerciseDocs) {
+                                        String title = doc.contains("title") && doc.getString("title") != null ? doc.getString("title") : doc.getId();
+                                        titles.add(title);
+                                    }
+                                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                                            .setTitle("Các bài tập đã hoàn thành")
+                                            .setItems(titles.toArray(new String[0]), null)
+                                            .setNegativeButton("Đóng", null)
+                                            .show();
+                                })
+                                .addOnFailureListener(e2 -> {
+                                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                                            .setTitle("Lỗi")
+                                            .setMessage("Không thể lấy tên bài tập: " + e2.getMessage())
+                                            .setPositiveButton("OK", null)
+                                            .show();
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Lỗi")
+                            .setMessage("Không thể lấy dữ liệu bài tập đã làm: " + e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
+    }
+    private void showCompletedTests() {
+
+        String userId = getIntent().getStringExtra("user_id");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+                .collection("tests")
+                .whereEqualTo("completed", true)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Bài kiểm tra đã làm")
+                                .setMessage("Bạn chưa hoàn thành bài kiểm tra nào!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    } else {
+                        java.util.List<String> testIds = new java.util.ArrayList<>();
+                        java.util.Map<String, Integer> testScores = new java.util.HashMap<>();
+                        for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                            String testId = doc.getId();
+                            int score = doc.contains("score") && doc.getLong("score") != null ? doc.getLong("score").intValue() : 0;
+                            testIds.add(testId);
+                            testScores.put(testId, score);
+                        }
+                        if (testIds.isEmpty()) {
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Bài kiểm tra đã làm")
+                                .setMessage("Bạn chưa hoàn thành bài kiểm tra nào!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                            return;
+                        }
+                        db.collection("tests")
+                                .whereIn(FieldPath.documentId(), testIds)
+                                .get()
+                                .addOnSuccessListener(testDocs -> {
+                                    java.util.List<String> summaries = new java.util.ArrayList<>();
+                                    for (com.google.firebase.firestore.DocumentSnapshot doc : testDocs) {
+                                        String title = doc.contains("title") && doc.getString("title") != null ? doc.getString("title") : doc.getId();
+                                        int total = 0;
+                                        if (doc.contains("questions") && doc.get("questions") instanceof java.util.List) {
+                                            total = ((java.util.List<?>) doc.get("questions")).size();
+                                        }
+                                        int score = testScores.containsKey(doc.getId()) ? testScores.get(doc.getId()) : 0;
+                                        String summary = title + " - Điểm: " + score + "/" + total;
+                                        summaries.add(summary);
+                                    }
+                                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                                            .setTitle("Các bài kiểm tra đã hoàn thành")
+                                            .setItems(summaries.toArray(new String[0]), null)
+                                            .setNegativeButton("Đóng", null)
+                                            .show();
+                                })
+                                .addOnFailureListener(e2 -> {
+                                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                                            .setTitle("Lỗi")
+                                            .setMessage("Không thể lấy tên/chi tiết bài kiểm tra: " + e2.getMessage())
+                                            .setPositiveButton("OK", null)
+                                            .show();
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Lỗi")
+                            .setMessage("Không thể lấy dữ liệu bài kiểm tra đã làm: " + e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
+    }
+    private void showWatchedVideos() {
+        String userId = getIntent().getStringExtra("user_id");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+                .collection("video lectures")
+                .whereEqualTo("watched", true)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Video đã xem")
+                                .setMessage("Bạn chưa xem video nào!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    } else {
+                        java.util.List<String> videoIds = new java.util.ArrayList<>();
+                        for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                            videoIds.add(doc.getId());
+                        }
+                        if (videoIds.isEmpty()) {
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Các video đã xem")
+                                    .setMessage("Không tìm thấy thông tin video!")
+                                    .setPositiveButton("Đóng", null)
+                                    .show();
+                            return;
+                        }
+                        db.collection("video_lectures")
+                                .whereIn(com.google.firebase.firestore.FieldPath.documentId(), videoIds)
+                                .get()
+                                .addOnSuccessListener(videoDocs -> {
+                                    java.util.List<String> videoTitles = new java.util.ArrayList<>();
+                                    for (String vid : videoIds) {
+                                        String title = vid;
+                                        for (com.google.firebase.firestore.DocumentSnapshot vdoc : videoDocs) {
+                                            if (vdoc.getId().equals(vid)) {
+                                                title = vdoc.contains("title") && vdoc.getString("title") != null ? vdoc.getString("title") : vid;
+                                                break;
+                                            }
+                                        }
+                                        videoTitles.add(title);
+                                    }
+                                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                                            .setTitle("Các video đã xem")
+                                            .setItems(videoTitles.toArray(new String[0]), null)
+                                            .setNegativeButton("Đóng", null)
+                                            .show();
+                                })
+                                .addOnFailureListener(e2 -> {
+                                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                                            .setTitle("Lỗi")
+                                            .setMessage("Không thể lấy tên video: " + e2.getMessage())
+                                            .setPositiveButton("OK", null)
+                                            .show();
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Lỗi")
+                            .setMessage("Không thể lấy dữ liệu video đã xem: " + e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
     }
 }
 

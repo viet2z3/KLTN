@@ -80,15 +80,9 @@ public class TestDetailActivity extends AppCompatActivity {
                     List<String> choices = null;
                     if ("multiple_choice".equals(type)) {
                         choices = (List<String>) q.get("options");
-                        int correctIdx = -1;
-                        Object idxObj = q.get("correct_answer");
-                        if (idxObj instanceof Long) correctIdx = ((Long) idxObj).intValue();
-                        else if (idxObj instanceof Integer) correctIdx = (Integer) idxObj;
-                        if (choices != null && correctIdx >= 0 && correctIdx < choices.size()) {
-                            answer = choices.get(correctIdx);
-                        }
+                        answer = q.get("correct_answer") != null ? q.get("correct_answer").toString() : "";
                     } else if ("fill_blank".equals(type)) {
-                        answer = (String) q.get("correct_answer");
+                        answer = q.get("correct_answer") != null ? q.get("correct_answer").toString() : "";
                     }
                     questions.add(new TestQuestion(type, question, choices, answer));
                     userAnswers.add("");
